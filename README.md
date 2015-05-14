@@ -32,7 +32,8 @@ How to start
 	UploadResult result = new UploadResult();
 	int ret = pc.Upload(userid, pic, result);
 	if(ret == 0){
-		System.out.println("upload pic success, url=" + result.url + " download_url="+result.download_url);
+		System.out.println("upload pic success");
+		result.Print();
 	}else{
 		System.out.println("upload pic error, error code="+ret);
 	}
@@ -46,4 +47,34 @@ How to start
         }else{
         	System.out.println("copy pic error, error="+pc.GetError());
 	}
-
+查询
+		
+	PicInfo info = new PicInfo();	
+	int ret = pc.Stat(userid, fileid, info);
+	if(ret == 0){
+        	System.out.println("Stat pic success");
+        	info.Print();
+        }else{
+        	System.out.println("Stat pic error, error="+pc.GetError());
+	}
+删除
+	ret = pc.Delete(userid, fileid);
+        if(ret == 0){
+        	System.out.println("delete pic success");
+        }else{
+        	System.out.println("delete pic error, error="+pc.GetError());
+	}
+下载
+		
+	//根据是否开启防盗链，选择正确的下载方法
+	//不开启防盗链
+	//ret = pc.Download(userid, result.fileid, "./download.jpg");
+	//ret = pc.Download(result.download_url, "./download.jpg");
+	//开启防盗链
+        ret = pc.DownloadEx(userid, result.fileid, "./download.jpg");
+        if(ret == 0){
+        	System.out.println("download pic success");
+	}else{
+        	System.out.println("download pic error, error="+pc.GetError());
+	}	
+	

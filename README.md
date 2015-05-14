@@ -58,6 +58,7 @@ How to start
         	System.out.println("Stat pic error, error="+pc.GetError());
 	}
 删除
+		
 	ret = pc.Delete(userid, fileid);
         if(ret == 0){
         	System.out.println("delete pic success");

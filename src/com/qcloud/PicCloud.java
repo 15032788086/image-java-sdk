@@ -90,25 +90,16 @@ public class PicCloud
             return rsp;
         }
 
-        /**
-	    Upload      上传图片
-            @param  userid      业务账号,没有填0
-	    @param  fileName    上传的文件名  
-	    @param  result      返回的图片的上传信息
-            @return 错误码，0为成功
-        */
-        public int Upload(String userid, String fileName, UploadResult result){
-            return Upload(Integer.parseInt(userid), fileName, result);
-        }
+
         
         /**
 	    Upload      上传图片
-            @param  userid      业务账号,没有填0
+        @param  userid      业务账号,没有填0
 	    @param  fileName    上传的文件名  
 	    @param  result      返回的图片的上传信息
             @return 错误码，0为成功
         */
-	public int Upload(int userid, String fileName, UploadResult result){
+	public int Upload(String userid, String fileName, UploadResult result){
             String req_url = "http://"+QCLOUD_DOMAIN+"/"+m_appid+"/"+userid;
             String BOUNDARY = "---------------------------" + MD5.stringToMD5(String.valueOf(System.currentTimeMillis())).substring(0,15); 
             String rsp = "";
@@ -116,10 +107,10 @@ public class PicCloud
             //create sign
             StringBuffer sign = new StringBuffer("");		
             long expired = System.currentTimeMillis() / 1000 + 2592000;
-            if( FileCloudSign.appSign(Integer.toString(m_appid), m_secret_id, m_secret_key, expired, Integer.toString(userid), sign) != 0){
+            if( FileCloudSign.appSign(Integer.toString(m_appid), m_secret_id, m_secret_key, expired, userid, sign) != 0){
                 return SetError(-1, "create app sign failed");
             }
-            String qcloud_sign="QCloud "+sign.toString();
+            String qcloud_sign=sign.toString();
 
             try{
                 URL realUrl = new URL(req_url);
@@ -184,7 +175,7 @@ public class PicCloud
             }
             return SetError(0, "success");
 	}
-        
+
         /**
 	    Delete      删除图片
             @param  userid      业务账号,没有填0
@@ -192,26 +183,16 @@ public class PicCloud
             @return 错误码，0为成功
         */
         public int Delete(String userid, String fileid){
-            return Delete(Integer.parseInt(userid), fileid);
-        }
-        
-        /**
-	    Delete      删除图片
-            @param  userid      业务账号,没有填0
-	    @param  fileid      图片的唯一标识
-            @return 错误码，0为成功
-        */
-        public int Delete(int userid, String fileid){
             String req_url = "http://"+QCLOUD_DOMAIN+"/"+m_appid+"/"+userid+"/"+fileid+"/del";
             String download_url = "http://"+m_appid+"."+QCLOUD_DOWNLOAD_DOMAIN+"/"+m_appid+"/"+userid+"/"+fileid+"/original";
             String rsp = "";
             
             //create sign once
             StringBuffer sign = new StringBuffer("");		
-            if(0 != FileCloudSign.appSignOnce(Integer.toString(m_appid), m_secret_id, m_secret_key, Integer.toString(userid), download_url, sign)){
+            if(0 != FileCloudSign.appSignOnce(Integer.toString(m_appid), m_secret_id, m_secret_key, userid, download_url, sign)){
                 return SetError(-1, "create app sign failed");
             }
-            String qcloud_sign="QCloud "+sign.toString();
+            String qcloud_sign=sign.toString();
             
             try{
                 URL realUrl = new URL(req_url);
@@ -246,7 +227,7 @@ public class PicCloud
             
             return SetError(0, "success");
         }
-        
+
         /**
 	    Stat        查询图片信息
             @param  userid      业务账号,没有填0
@@ -255,17 +236,6 @@ public class PicCloud
             @return 错误码，0为成功
         */
         public int Stat(String userid, String fileid, PicInfo info){
-            return Stat(Integer.parseInt(userid), fileid, info);
-        }
- 
-        /**
-	    Stat        查询图片信息
-            @param  userid      业务账号,没有填0
-	    @param  fileid      图片的唯一标识
-            @param  info        返回的图片信息
-            @return 错误码，0为成功
-        */
-        public int Stat(int userid, String fileid, PicInfo info){
             String req_url = "http://"+QCLOUD_DOMAIN+"/"+m_appid+"/"+userid+"/"+fileid;
             String rsp = "";
             
@@ -317,27 +287,16 @@ public class PicCloud
             @return 错误码，0为成功
         */
         public int Copy(String userid, String fileid, UploadResult result){
-            return Copy(Integer.parseInt(userid), fileid, result);
-        }
-        
-        /**
-	    Copy        复制图片
-            @param  userid      业务账号,没有填0
-	    @param  fileid      图片的唯一标识
-            @param  result      返回的图片的上传信息
-            @return 错误码，0为成功
-        */
-        public int Copy(int userid, String fileid, UploadResult result){
             String req_url = "http://"+QCLOUD_DOMAIN+"/"+m_appid+"/"+userid+"/"+fileid+"/copy";
             String download_url = "http://"+m_appid+"."+QCLOUD_DOWNLOAD_DOMAIN+"/"+m_appid+"/"+userid+"/"+fileid+"/original";
             String rsp = "";
             
             //create sign once
             StringBuffer sign = new StringBuffer("");		
-            if(0 != FileCloudSign.appSignOnce(Integer.toString(m_appid), m_secret_id, m_secret_key, Integer.toString(userid), download_url, sign)){
+            if(0 != FileCloudSign.appSignOnce(Integer.toString(m_appid), m_secret_id, m_secret_key, userid, download_url, sign)){
                 return SetError(-1, "create app sign failed");
             }
-            String qcloud_sign="QCloud "+sign.toString();
+            String qcloud_sign=sign.toString();
             
             try{
                 URL realUrl = new URL(req_url);
@@ -384,7 +343,7 @@ public class PicCloud
             @param  fileName    下载图片的保存路径
             @return 错误码，0为成功
         */
-        public int Download(int userid, String fileid, String fileName){
+        public int Download(String userid, String fileid, String fileName){
             String download_url = "http://"+m_appid+"."+QCLOUD_DOWNLOAD_DOMAIN+"/"+m_appid+"/"+userid+"/"+fileid+"/original";
             return Download(download_url, fileName);
         }
@@ -396,11 +355,11 @@ public class PicCloud
             @param  fileName    下载图片的保存路径
             @return 错误码，0为成功
         */
-        public int DownloadEx(int userid, String fileid, String fileName){
+        public int DownloadEx(String userid, String fileid, String fileName){
             String download_url = "http://"+m_appid+"."+QCLOUD_DOWNLOAD_DOMAIN+"/"+m_appid+"/"+userid+"/"+fileid+"/original";
                         //create sign once
             StringBuffer sign = new StringBuffer("");		
-            if(0 != FileCloudSign.appSignOnce(Integer.toString(m_appid), m_secret_id, m_secret_key, Integer.toString(userid), download_url, sign)){
+            if(0 != FileCloudSign.appSignOnce(Integer.toString(m_appid), m_secret_id, m_secret_key, userid, download_url, sign)){
                 return SetError(-1, "create app sign failed");
             }
             download_url += "?sign="+sign;

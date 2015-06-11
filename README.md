@@ -6,6 +6,10 @@ java sdk for picture service of tencentyun.
 
 版本信息
 ----------------------------------- 
+### v1.2.0
+稳定版本，支持微视频的基本api。
+包括视频的上传、下载、查询和删除。
+
 ### v1.0.0
 稳定版本，支持图片云的基本api。
 包括图片的上传、下载、复制、查询和删除。
@@ -22,26 +26,31 @@ How to start
 	SECRET_ID
 	SECRET_KEY
 
-### 2. 创建PicCloud对象
+### 2. 创建PicCloud或VideoCloud对象
 		
 	PicCloud pc = new PicCloud(APP_ID, SECRET_ID, SECRET_KEY);
+	VideoCloud vc = new VideoCloud(APP_ID, SECRET_ID, SECRET_KEY);
 
 ### 3. 调用对应的方法
 上传
 		
 	UploadResult result = new UploadResult();
 	int ret = pc.Upload(userid, pic, result);
+	ret = vc.Upload(userid, video,"test_title","test_Desc","test_magic_context", result);
 复制
 		
 	UploadResult result = new UploadResult();
 	int ret = pc.Copy(userid, fileid, result);
 查询
 		
-	PicInfo info = new PicInfo();	
-	int ret = pc.Stat(userid, fileid, info);
+	PicInfo picInfo = new PicInfo();	
+	int ret = pc.Stat(userid, fileid, picInfo);
+	VideoInfo videoInfo = new VideoInfo();	
+	ret = vc.Stat(userid, fileid, videoInfo);
 删除
 		
 	ret = pc.Delete(userid, fileid);
+	ret = vc.Delete(userid, fileid);
 下载
 		
 	//根据是否开启防盗链，选择正确的下载方法
@@ -50,5 +59,5 @@ How to start
 	//or
 	//ret = pc.Download(result.download_url, "./download.jpg");
 	//开启防盗链
-        ret = pc.DownloadEx(userid, result.fileid, "./download.jpg");
-	
+    ret = pc.DownloadEx(userid, result.fileid, "./download.jpg");
+	ret = vc.DownloadEx(userid, result.fileid, "./download.mp4");

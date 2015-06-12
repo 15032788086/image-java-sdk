@@ -121,7 +121,7 @@ public class VideoCloud
 		//set header
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("accept", "*/*");
-                connection.setRequestProperty("Host", "web.image.myqcloud.com");
+                connection.setRequestProperty("Host", "web.video.myqcloud.com");
                 connection.setRequestProperty("user-agent","qcloud-java-sdk");
                 connection.setRequestProperty("Authorization", qcloud_sign);
 			

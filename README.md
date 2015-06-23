@@ -6,6 +6,9 @@ java sdk for picture service of tencentyun.
 
 版本信息
 ----------------------------------- 
+### v1.2.1
+增加视频分片上传功能，较大视频可使用分片上传。
+
 ### v1.2.0
 稳定版本，支持微视频的基本api。
 包括视频的上传、下载、查询和删除。
@@ -37,6 +40,8 @@ How to start
 	UploadResult result = new UploadResult();
 	int ret = pc.Upload(userid, pic, result);
 	ret = vc.Upload(userid, video,"test_title","test_Desc","test_magic_context", result);
+	//视频分片上传
+	ret = vc.SliceUpload(userid, video,"test_title","test_Desc","test_magic_context", result);
 复制
 		
 	UploadResult result = new UploadResult();

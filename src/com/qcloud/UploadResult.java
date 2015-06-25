@@ -14,12 +14,14 @@ public class UploadResult {
 	public String download_url; // 下载url
 	public String fileid; // 资源的唯一标识
 	public String cover_url; // 视频资源的封面url，只有转码过的视频才有，默认是黑屏后的第一帧
+        public PicAnalyze analyze; //图片分析的结果
 
 	public UploadResult() {
 		url = "";
 		download_url = "";
 		fileid = "";
 		cover_url = "";
+                analyze = new PicAnalyze();
 	}
 
 	public void Print() {

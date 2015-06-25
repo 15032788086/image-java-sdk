@@ -8,7 +8,7 @@ public class Demo {
 	public static final String SECRET_KEY = "8W0dbC201JgEl8XPYTBFu0ulUxiNnuYv";
 
 	public static void main(String[] args) {
-		// pic_test("D:/test.jpg");
+		pic_test("D:/test.jpg");
 		video_test("D:/2M.MOV");
 	}
 
@@ -20,11 +20,11 @@ public class Demo {
 		UploadResult result = new UploadResult();
 		UploadResult result2 = new UploadResult();
 		PicInfo info = new PicInfo();
+                PicAnalyze flag = new PicAnalyze();
 
 		// 涓婁紶涓�寮犲浘鐗�
-		System.out
-				.println("======================================================");
-		int ret = pc.Upload(userid, pic, result);
+		System.out.println("======================================================");
+		int ret = pc.Upload(userid, pic, flag, result);
 		if (ret == 0) {
 			System.out.println("upload pic success");
 			result.Print();
@@ -32,8 +32,7 @@ public class Demo {
 			System.out.println("upload pic error, error=" + pc.GetError());
 		}
 
-		System.out
-				.println("======================================================");
+		System.out.println("======================================================");
 		// 鏍规嵁鏄惁寮�鍚槻鐩楅摼锛岄�夋嫨姝ｇ‘鐨勪笅杞芥柟娉�
 		// 涓嶅紑鍚槻鐩楅摼
 		// ret = pc.Download(userid, result.fileid, "./download.jpg");
@@ -47,8 +46,7 @@ public class Demo {
 		}
 
 		// 鏌ヨ鍥剧墖鐘舵��
-		System.out
-				.println("======================================================");
+		System.out.println("======================================================");
 		ret = pc.Stat(userid, result.fileid, info);
 		if (ret == 0) {
 			System.out.println("Stat pic success");
@@ -58,8 +56,7 @@ public class Demo {
 		}
 
 		// 澶嶅埗鍥剧墖
-		System.out
-				.println("======================================================");
+		System.out.println("======================================================");
 		ret = pc.Copy(userid, result.fileid, result2);
 		if (ret == 0) {
 			System.out.println("copy pic success");
@@ -69,8 +66,7 @@ public class Demo {
 		}
 
 		// 鏌ヨ澶嶅埗鐨勫浘鐗囩殑鐘舵��
-		System.out
-				.println("======================================================");
+		System.out.println("======================================================");
 		ret = pc.Stat(userid, result.fileid, info);
 		if (ret == 0) {
 			System.out.println("Stat pic success");
@@ -80,13 +76,25 @@ public class Demo {
 		}
 
 		// 鍒犻櫎鍥剧墖
-		System.out
-				.println("======================================================");
+		System.out.println("======================================================");
 		ret = pc.Delete(userid, result.fileid);
 		if (ret == 0) {
 			System.out.println("delete pic success");
 		} else {
 			System.out.println("delete pic error, error=" + pc.GetError());
+		}
+                
+                //test fuzzy and food
+                System.out.println("======================================================");
+                flag.fuzzy = 1;
+                flag.food = 1;
+                ret = pc.Upload(userid, pic, flag, result);
+		if (ret == 0) {
+			System.out.println("analyze pic success");
+                        System.out.println("is fuzzy =" + result.analyze.fuzzy);
+                        System.out.println("is food =" + result.analyze.food);
+		} else {
+			System.out.println("analyze pic error, error=" + pc.GetError());
 		}
 	}
 
@@ -101,8 +109,7 @@ public class Demo {
 		VideoInfo info = new VideoInfo();
 
 		// 涓婁紶涓�寮犲浘鐗�
-		System.out
-				.println("======================================================");
+		System.out.println("======================================================");
 		//视频直接上传，适用于较小视频
 		int ret = vc.Upload(userid, video, "title", "desc", "text", result);
 		//视频分片上传，适用于较大视频
@@ -128,8 +135,7 @@ public class Demo {
 		}
 
 		// 鏌ヨ澶嶅埗鐨勫浘鐗囩殑鐘舵��
-		System.out
-				.println("======================================================");
+		System.out.println("======================================================");
 		ret = vc.Stat(userid, result.fileid, info);
 		if (ret == 0) {
 			System.out.println("Stat video success");

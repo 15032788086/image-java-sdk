@@ -78,15 +78,14 @@ public class PicCloud {
 
 	public String GetResponse(HttpURLConnection connection) throws IOException {
 		String rsp = "";
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(
-				connection.getInputStream()))) {
-			rsp = "";
-			String line;
-			while ((line = in.readLine()) != null) {
-				rsp += line;
-			}
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				connection.getInputStream()));
+
+		String line;
+		while ((line = in.readLine()) != null) {
+			rsp += line;
 		}
-		System.out.println("Debug: rsp = " + rsp);
+                
 		return rsp;
 	}
 
@@ -97,14 +96,26 @@ public class PicCloud {
 	 * @param result		返回的图片的上传信息
 	 * @return				错误码，0为成功
 	 */
-	public int Upload(String userid, String fileName, UploadResult result) {
+	public int Upload(String userid, String fileName, PicAnalyze flag, UploadResult result) {
 		String req_url = "http://" + QCLOUD_DOMAIN + "/" + m_appid + "/"
 				+ userid;
 		String BOUNDARY = "---------------------------"
 				+ MD5.stringToMD5(String.valueOf(System.currentTimeMillis()))
 						.substring(0, 15);
 		String rsp = "";
-
+                
+                //check analyze flag
+                String query_string = "";
+                if(flag.fuzzy != 0){
+                    query_string += ".fuzzy";
+                }
+                if(flag.food != 0){
+                    query_string += ".food";
+                }
+                if ("".equals(query_string) == false) {
+                    req_url += "?analyze="+query_string.substring(1);
+		}
+                
 		// create sign
 		StringBuffer sign = new StringBuffer("");
 		long expired = System.currentTimeMillis() / 1000 + 2592000;
@@ -169,7 +180,7 @@ public class PicCloud {
 		} catch (Exception e) {
 			return SetError(-1, "url exception, e=" + e.toString());
 		}
-
+                System.out.println("rsp=" + rsp);
 		try {
 			JSONObject jsonObject = new JSONObject(rsp);
 			int code = jsonObject.getInt("code");
@@ -183,6 +194,14 @@ public class PicCloud {
 					"download_url");
 			result.fileid = jsonObject.getJSONObject("data")
 					.getString("fileid");
+                        
+                        if(jsonObject.getJSONObject("data").has("is_fuzzy")){
+                            result.analyze.fuzzy = jsonObject.getJSONObject("data").getInt("is_fuzzy");
+                        }
+                        if(jsonObject.getJSONObject("data").has("is_food")){
+                            result.analyze.food = jsonObject.getJSONObject("data").getInt("is_food");
+                        }
+                        
 		} catch (JSONException e) {
 			return SetError(-1, "json exception, e=" + e.toString());
 		}
@@ -198,15 +217,12 @@ public class PicCloud {
 	public int Delete(String userid, String fileid) {
 		String req_url = "http://" + QCLOUD_DOMAIN + "/" + m_appid + "/"
 				+ userid + "/" + fileid + "/del";
-		String download_url = "http://" + m_appid + "."
-				+ QCLOUD_DOWNLOAD_DOMAIN + "/" + m_appid + "/" + userid + "/"
-				+ fileid + "/original";
 		String rsp = "";
 
 		// create sign once
 		StringBuffer sign = new StringBuffer("");
 		if (0 != FileCloudSign.appSignOnce(Integer.toString(m_appid),
-				m_secret_id, m_secret_key, userid, download_url, sign)) {
+				m_secret_id, m_secret_key, userid, fileid, sign)) {
 			return SetError(-1, "create app sign failed");
 		}
 		String qcloud_sign = sign.toString();
@@ -311,15 +327,12 @@ public class PicCloud {
 	public int Copy(String userid, String fileid, UploadResult result) {
 		String req_url = "http://" + QCLOUD_DOMAIN + "/" + m_appid + "/"
 				+ userid + "/" + fileid + "/copy";
-		String download_url = "http://" + m_appid + "."
-				+ QCLOUD_DOWNLOAD_DOMAIN + "/" + m_appid + "/" + userid + "/"
-				+ fileid + "/original";
 		String rsp = "";
 
 		// create sign once
 		StringBuffer sign = new StringBuffer("");
 		if (0 != FileCloudSign.appSignOnce(Integer.toString(m_appid),
-				m_secret_id, m_secret_key, userid, download_url, sign)) {
+				m_secret_id, m_secret_key, userid, fileid, sign)) {
 			return SetError(-1, "create app sign failed");
 		}
 		String qcloud_sign = sign.toString();
@@ -393,7 +406,7 @@ public class PicCloud {
 		// create sign once
 		StringBuffer sign = new StringBuffer("");
 		if (0 != FileCloudSign.appSignOnce(Integer.toString(m_appid),
-				m_secret_id, m_secret_key, userid, download_url, sign)) {
+				m_secret_id, m_secret_key, userid, fileid, sign)) {
 			return SetError(-1, "create app sign failed");
 		}
 		download_url += "?sign=" + sign;

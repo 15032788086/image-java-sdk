@@ -217,15 +217,12 @@ public class VideoCloud {
 	public int Delete(String userid, String fileid) {
 		String req_url = "http://" + QCLOUD_DOMAIN + "/" + m_appid + "/"
 				+ userid + "/" + fileid + "/del";
-		String download_url = "http://" + m_appid + "."
-				+ QCLOUD_DOWNLOAD_DOMAIN + "/" + m_appid + "/" + userid + "/"
-				+ fileid + "/original";
 		String rsp = "";
 
 		// create sign once
 		StringBuffer sign = new StringBuffer("");
 		if (0 != FileCloudSign.appSignOnce(Integer.toString(m_appid),
-				m_secret_id, m_secret_key, userid, download_url, sign)) {
+				m_secret_id, m_secret_key, userid, fileid, sign)) {
 			return SetError(-1, "create app sign failed");
 		}
 		String qcloud_sign = sign.toString();

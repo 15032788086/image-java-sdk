@@ -16,7 +16,13 @@ public class FileCloudSign {
     */
 	public static int appSign(String appId, String secret_id, String secret_key,
 			long expired, String userid, StringBuffer mySign) {
-		return appSignBase(appId, secret_id, secret_key, expired, userid, null, mySign);
+		return appSignBase(appId, secret_id, secret_key, "", expired, userid, null, mySign);
+	}
+        
+        public static int appSignV2(String appId, String secret_id, String secret_key,
+                        String bucket, 
+			long expired, String userid, StringBuffer mySign) {
+		return appSignBase(appId, secret_id, secret_key, bucket, expired, userid, null, mySign);
 	}
 
 	 /**
@@ -31,27 +37,33 @@ public class FileCloudSign {
     */    
         public static int appSignOnce(String appId, String secret_id, String secret_key,
     		String userid, String fileid, StringBuffer mySign){
-            return appSignBase(appId, secret_id, secret_key, 0, userid, fileid, mySign);
+            return appSignBase(appId, secret_id, secret_key, "", 0, userid, fileid, mySign);
+        }
+        
+        public static int appSignOnceV2(String appId, String secret_id, String secret_key,
+                String bucket, 
+    		String userid, String fileid, StringBuffer mySign){
+            return appSignBase(appId, secret_id, secret_key, bucket, 0, userid, fileid, mySign);
         }
     
-        private static int appSignBase(String appId, String secret_id,
-		String secret_key, long expired, String userid, String fileid,
+        private static int appSignBase(String appId, String secret_id,String secret_key, 
+                String bucket,
+                long expired, String userid, String fileid,
 		StringBuffer mySign) {
             if (empty(secret_id) || empty(secret_key)){
                 return -1;
             }
     	
-            String puserid = "";
-            if (!empty(userid)){
-		if (userid.length() > 64){
-                    return -2;
-                }
-                puserid = userid;
-            }
-    	
             long now = System.currentTimeMillis() / 1000;    
             int rdm = Math.abs(new Random().nextInt());
-            String plain_text = "a=" + appId + "&k=" + secret_id + "&e=" + expired + "&t=" + now + "&r=" + rdm + "&u=" + puserid + "&f=" + fileid;
+            String plain_text = "";
+            if(empty(bucket)){
+                plain_text = String.format("a=%s&k=%s&e=%d&t=%d&r=%d&u=%s&f=%s",
+                        appId, secret_id, expired, now, rdm, userid, fileid);
+            }else{
+                plain_text = String.format("a=%s&b=%s&k=%s&e=%d&t=%d&r=%d&u=%s&f=%s",
+                        appId, bucket, secret_id, expired, now, rdm, userid, fileid);
+            }
 
             byte[] bin = hashHmac(plain_text, secret_key);
 
@@ -60,7 +72,6 @@ public class FileCloudSign {
             System.arraycopy(plain_text.getBytes(), 0, all, bin.length, plain_text.getBytes().length);
         
             mySign.append(Base64Util.encode(all));
-        
             return 0;
 	}
 
@@ -72,31 +83,6 @@ public class FileCloudSign {
 			return null;
 		}
 	}
-        
-        private static int getFileidFromUrl(String url, StringBuffer fileid) {
-	 /*
-                http://1.1.1.1/1009_eb090aa932f04fbfb4cb29be8dcc264e.f20.mp4
-                http://1.1.1.1/77/123456/c06dd409-20bd-4a0a-84e4-e6c45fc5fb25/orignal
-                */
-            if (url.startsWith("http://"))
-            {
-                url = url.substring(7);
-                String[] url_explode = url.split("/");
-                if (url_explode.length >= 4)
-                {
-        		fileid.append(url_explode[3]);
-        		return 0;
-                }
-            
-                if (url_explode.length >= 2)
-                {
-                    String[] vinfo_explode = url_explode[1].split(".");
-                    fileid.append(vinfo_explode[0]);	
-                    return 0;
-                }
-            }
-            return -1;
-        }
     
 	public static boolean empty(String s){
 		return s == null || s.trim().equals("") || s.trim().equals("null");

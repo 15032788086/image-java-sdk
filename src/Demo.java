@@ -1,30 +1,47 @@
 import com.qcloud.*;
 
 public class Demo {
-	// appid, access id, access key璇峰埌http://app.qcloud.com娉ㄥ唽
-	// 涓嬮潰鏄痙emo娴嬭瘯鐢ㄧ殑appid锛屼笉鍙綔涓哄晢涓氱敤閫�
-	public static final int APP_ID = 200899;
-	public static final String SECRET_ID = "AKIDXZE8z7kUBlltXgfjb8NgrgChrpTiiVNo";
-	public static final String SECRET_KEY = "8W0dbC201JgEl8XPYTBFu0ulUxiNnuYv";
+	// appid, access id, access key请去http://app.qcloud.com申请使用
+	// 下面的的demo代码请使用自己的appid�
+	public static final int APP_ID_V1 = 201437;
+	public static final String SECRET_ID_V1 = "AKIDblLJilpRRd7k3ioCHe5JGmSsPvf1uHOf";
+	public static final String SECRET_KEY_V1 = "6YvZEJEkTGmXrtqnuFgjrgwBpauzENFG";
+        
+        public static final int APP_ID_V2 = 10000001;
+	public static final String SECRET_ID_V2 = "AKIDNZwDVhbRtdGkMZQfWgl2Gnn1dhXs95C0";
+	public static final String SECRET_KEY_V2 = "ZDdyyRLCLv1TkeYOl5OCMLbyH4sJ40wp";
+        public static final String BUCKET = "testa";        //空间名
 
 	public static void main(String[] args) {
-		pic_test("D:/test.jpg");
-		video_test("D:/2M.MOV");
+            //v1版本api的demo
+            picV1_test("D:/test.jpg");
+            //v2版本api的demo
+            picV2_test("D:/test.jpg");
+            //视频api的demo
+            video_test("D:/2M.MOV");
 	}
+        
+        public static void picV1_test(String pic){
+            PicCloud pc = new PicCloud(APP_ID_V1, SECRET_ID_V1, SECRET_KEY_V1);
+            pic_base(pc, pic);
+        }
+        
+        public static void picV2_test(String pic){
+            PicCloud pc = new PicCloud(APP_ID_V2, SECRET_ID_V2, SECRET_KEY_V2, BUCKET);
+            pic_base(pc, pic);
+        }
 
-	public static void pic_test(String pic) {
-		PicCloud pc = new PicCloud(APP_ID, SECRET_ID, SECRET_KEY);
+	public static void pic_base(PicCloud pc, String pic) {
 		String userid = "123456";
 		String url = "";
 		String download_url = "";
 		UploadResult result = new UploadResult();
 		UploadResult result2 = new UploadResult();
 		PicInfo info = new PicInfo();
-                PicAnalyze flag = new PicAnalyze();
 
 		// 涓婁紶涓�寮犲浘鐗�
 		System.out.println("======================================================");
-		int ret = pc.Upload(userid, pic, flag, result);
+		int ret = pc.Upload(userid, pic, result);
 		if (ret == 0) {
 			System.out.println("upload pic success");
 			result.Print();
@@ -38,7 +55,7 @@ public class Demo {
 		// ret = pc.Download(userid, result.fileid, "./download.jpg");
 		// ret = pc.Download(result.download_url, "./download.jpg");
 		// 寮�鍚槻鐩楅摼
-		ret = pc.DownloadEx(userid, result.fileid, "./download.jpg");
+		ret = pc.DownloadEx(userid, result.fileid, "./a.jpg");
 		if (ret == 0) {
 			System.out.println("download pic success");
 		} else {
@@ -76,19 +93,21 @@ public class Demo {
 		}
 
 		// 鍒犻櫎鍥剧墖
-		System.out.println("======================================================");
+		/*System.out.println("======================================================");
 		ret = pc.Delete(userid, result.fileid);
 		if (ret == 0) {
 			System.out.println("delete pic success");
 		} else {
 			System.out.println("delete pic error, error=" + pc.GetError());
 		}
+                */
                 
                 //test fuzzy and food
                 System.out.println("======================================================");
+                PicAnalyze flag = new PicAnalyze();
                 flag.fuzzy = 1;
                 flag.food = 1;
-                ret = pc.Upload(userid, pic, flag, result);
+                ret = pc.Upload(userid, pic, "", flag, result);
 		if (ret == 0) {
 			System.out.println("analyze pic success");
                         System.out.println("is fuzzy =" + result.analyze.fuzzy);
@@ -99,7 +118,7 @@ public class Demo {
 	}
 
 	public static void video_test(String strFilePath) {
-		VideoCloud vc = new VideoCloud(APP_ID, SECRET_ID, SECRET_KEY);
+		VideoCloud vc = new VideoCloud(APP_ID_V1, SECRET_ID_V1, SECRET_KEY_V1);
 		String userid = "123456";
 		String video = strFilePath;
 		String url = "";

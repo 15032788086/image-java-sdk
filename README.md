@@ -7,7 +7,7 @@ java sdk for picture service of tencentyun.
 版本信息
 ----------------------------------- 
 ### v2.0.0
-支持2.0版本的图片restful api
+支持2.0版本的图片restful api。内部实现了高度封装，对开发者透明。
 
 ### v1.2.1
 增加视频分片上传功能，较大视频可使用分片上传。
@@ -31,11 +31,20 @@ How to start
 	APP_ID 
 	SECRET_ID
 	SECRET_KEY
+2.0版本的云服务在使用前，还需要先创建空间。在使用2.0 api时，需要使用空间名（Bucket）。
 
-### 2. 创建PicCloud或VideoCloud对象
+### 2. 创建对应操作类的对象
+如果要使用图片，需要创建图片操作类对象
 		
+	v1版本	
 	PicCloud pc = new PicCloud(APP_ID, SECRET_ID, SECRET_KEY);
-	VideoCloud vc = new VideoCloud(APP_ID, SECRET_ID, SECRET_KEY);
+		
+	v2版本
+	PicCloud pc = new PicCloud(APP_ID, SECRET_ID, SECRET_KEY, Bucket);
+	
+如果要使用视频，需要创建视频操作类对象
+		
+	VideoCloud vc = new VideoCloud(APP_ID, SECRET_ID, SECRET_KEY);	
 
 ### 3. 调用对应的方法
 上传

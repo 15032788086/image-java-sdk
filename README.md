@@ -46,12 +46,11 @@ How to start
 	VideoCloud vc = new VideoCloud(APP_ID, SECRET_ID, SECRET_KEY);	
 
 ### 3. 调用对应的方法
-在创建完对象后，根据实际需求，调用对应的操作方法就可以了。
-sdk提供的方法包括：签名计算、上传、复制、查询、下载和删除等。
-获得版本信息
+在创建完对象后，根据实际需求，调用对应的操作方法就可以了。sdk提供的方法包括：签名计算、上传、复制、查询、下载和删除等。
+#### 获得版本信息
 		
 	String version = pc.GetVersion();
-上传数据
+#### 上传数据
 如果需要上传图片，根据不同的需求，可以选择不同的上传方法
 			
 	//UploadResult是上传的返回结果
@@ -66,11 +65,11 @@ sdk提供的方法包括：签名计算、上传、复制、查询、下载和�
 	int ret = vc.Upload(userid, video,"test_title","test_Desc","test_magic_context", result);
 	//视频分片上传
 	ret = vc.SliceUpload(userid, video,"test_title","test_Desc","test_magic_context", result);
-复制图片
+#### 复制图片
 		
 	UploadResult result = new UploadResult();
 	int ret = pc.Copy(userid, fileid, result);
-查询图片(视频)
+#### 查询图片(视频)
 		
 	//图片查询
 	PicInfo picInfo = new PicInfo();	
@@ -78,17 +77,17 @@ sdk提供的方法包括：签名计算、上传、复制、查询、下载和�
 	//视频查询
 	VideoInfo videoInfo = new VideoInfo();	
 	ret = vc.Stat(userid, fileid, videoInfo);
-删除
+#### 删除图片(视频)
 		
 	ret = pc.Delete(userid, fileid);
-	ret = vc.Delete(userid, fileid);
-下载
+#### 下载图片
+下载图片直接利用图片的下载url即可，开发者可以自行处理，这里提供的是本地下载的方法。
+如果开启了防盗链，还需要在下载url后面追加签名，如果要自行处理，请参考腾讯云的wiki页，熟悉鉴权签名的算法。
 		
-	//根据是否开启防盗链，选择正确的下载方法
 	//不开启防盗链
 	//ret = pc.Download(userid, result.fileid, "./download.jpg");
-	//or
-	//ret = pc.Download(result.download_url, "./download.jpg");
 	//开启防盗链
-    ret = pc.DownloadEx(userid, result.fileid, "./download.jpg");
-	ret = vc.DownloadEx(userid, result.fileid, "./download.mp4");
+    	ret = pc.DownloadEx(userid, result.fileid, "./download.jpg");
+	//直接提供url下载
+	//ret = pc.Download(result.download_url, "./download.jpg");
+

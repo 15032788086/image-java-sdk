@@ -16,13 +16,13 @@ public class FileCloudSign {
     */
 	public static int appSign(String appId, String secret_id, String secret_key,
 			long expired, String userid, StringBuffer mySign) {
-		return appSignBase(appId, secret_id, secret_key, "", expired, userid, null, mySign);
+		return appSignBase(appId, secret_id, secret_key, "", expired, userid, “”, mySign);
 	}
         
         public static int appSignV2(String appId, String secret_id, String secret_key,
                         String bucket, 
 			long expired, String userid, StringBuffer mySign) {
-		return appSignBase(appId, secret_id, secret_key, bucket, expired, userid, null, mySign);
+		return appSignBase(appId, secret_id, secret_key, bucket, expired, userid, “”, mySign);
 	}
 
 	 /**

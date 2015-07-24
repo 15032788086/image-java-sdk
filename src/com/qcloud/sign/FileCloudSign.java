@@ -1,6 +1,7 @@
 package com.qcloud.sign;
 
 import java.util.Random;
+import org.apache.commons.codec.binary.Base64;
 
 public class FileCloudSign {
 
@@ -65,13 +66,18 @@ public class FileCloudSign {
                         appId, bucket, secret_id, expired, now, rdm, userid, fileid);
             }
 
+            System.out.println("plain_text="+plain_text);
             byte[] bin = hashHmac(plain_text, secret_key);
 
             byte[] all = new byte[bin.length + plain_text.getBytes().length];
             System.arraycopy(bin, 0, all, 0, bin.length);
             System.arraycopy(plain_text.getBytes(), 0, all, bin.length, plain_text.getBytes().length);
         
-            mySign.append(Base64Util.encode(all));
+            //byte[] baBase64.encodeBase64(bytes)
+            String str64 = Base64Util.encode(all);
+            str64 = str64.replace("+", "-");
+            str64 = str64.replace("/", "_");
+            mySign.append(str64);
             return 0;
 	}
 

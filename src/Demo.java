@@ -1,4 +1,5 @@
 import com.qcloud.*;
+import com.qcloud.sign.*;
 
 public class Demo {
 	// appid, access id, access key请去http://app.qcloud.com申请使用
@@ -16,10 +17,22 @@ public class Demo {
             //v1版本api的demo
             picV1_test("D:/test.jpg");
             //v2版本api的demo
-            picV2_test("D:/test.jpg");
+            //picV2_test("D:/test.jpg");
             //视频api的demo
-            video_test("D:/2M.MOV");
+            //video_test("D:/2M.MOV");
 	}
+        
+        public static void sign_test(){
+            final String appid = "10001479";
+		final String bucket = "hudie";
+		final String secretid = "AKIDPC3BSSVrTtcqPSgU471lUqEL98x9uWy3";
+		final String secretkey = "igjJ4aZbZJnBBwxVZASnmUP95EcTFPqd";
+
+             StringBuffer sign = new StringBuffer("");
+            FileCloudSign.appSignV2(appid, secretid, secretkey, "", 3600, "0", sign);
+            System.out.println(sign.toString());
+            
+        }
         
         public static void picV1_test(String pic){
             PicCloud pc = new PicCloud(APP_ID_V1, SECRET_ID_V1, SECRET_KEY_V1);
@@ -32,7 +45,7 @@ public class Demo {
         }
 
 	public static void pic_base(PicCloud pc, String pic) {
-		String userid = "123456";
+		String userid = "1234567";
 		String url = "";
 		String download_url = "";
 		UploadResult result = new UploadResult();

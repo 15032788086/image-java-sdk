@@ -80,14 +80,14 @@ public class VideoCloud {
 
 	public String GetResponse(HttpURLConnection connection) throws IOException {
 		String rsp = "";
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(
-				connection.getInputStream()))) {
-			rsp = "";
-			String line;
-			while ((line = in.readLine()) != null) {
-				rsp += line;
-			}
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				connection.getInputStream()));
+		rsp = "";
+		String line;
+		while ((line = in.readLine()) != null) {
+                    rsp += line;
 		}
+                
 		System.out.println("Debug: rsp = " + rsp);
 		return rsp;
 	}

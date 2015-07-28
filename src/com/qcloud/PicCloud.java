@@ -122,26 +122,25 @@ public class PicCloud {
 
         /**
 	 * Upload 上传图片
-	 * @param userid		业务账号,没有填0
 	 * @param fileName		上传的文件名
 	 * @param result		返回的图片的上传信息
 	 * @return				错误码，0为成功
 	 */
-        public int Upload(String userid, String fileName, UploadResult result) {
-            return Upload(userid, fileName, "", new PicAnalyze(), result);
+        public int Upload(String fileName, UploadResult result) {
+            return Upload(fileName, "", new PicAnalyze(), result);
         }
         
-	public int Upload(String userid, String fileName, String fileid, UploadResult result) {
-            return Upload(userid, fileName, fileid, new PicAnalyze(), result);
+	public int Upload(String fileName, String fileid, UploadResult result) {
+            return Upload(fileName, fileid, new PicAnalyze(), result);
         }
         
-	public int Upload(String userid, String fileName, String fileid, PicAnalyze flag, UploadResult result) {
+	public int Upload(String fileName, String fileid, PicAnalyze flag, UploadResult result) {
             if ("".equals(fileName)) {
                 return SetError(-1, "invalid file name");
             }
             
-            String req_url = GetUrl(userid, fileid);
-            String BOUNDARY = "---------------------------" + MD5.stringToMD5(String.valueOf(System.currentTimeMillis())).substring(0, 15);
+            String req_url = GetUrl("0", fileid);
+            String BOUNDARY = "---------------------------abcdefg1234567";
             String rsp = "";
 
             //check analyze flag
@@ -161,7 +160,7 @@ public class PicCloud {
             long expired = System.currentTimeMillis() / 1000 + 2592000;
             if (FileCloudSign.appSignV2(Integer.toString(m_appid), m_secret_id,m_secret_key, 
                     m_bucket,
-                    expired, userid, sign) != 0) {
+                    expired, sign) != 0) {
                     return SetError(-1, "create app sign failed");
             }
             String qcloud_sign = sign.toString();
@@ -251,19 +250,18 @@ public class PicCloud {
 
 	/**
 	 * Delete 删除图片
-	 * @param userid		业务账号,没有填0
 	 * @param fileid		图片的唯一标识
 	 * @return 				错误码，0为成功
 	 */
-	public int Delete(String userid, String fileid) {
-		String req_url = GetUrl(userid, fileid) + "/del";
+	public int Delete(String fileid) {
+		String req_url = GetUrl("0", fileid) + "/del";
 		String rsp = "";
 
 		// create sign once
 		StringBuffer sign = new StringBuffer("");
 		if (0 != FileCloudSign.appSignOnceV2(Integer.toString(m_appid),m_secret_id, m_secret_key,
                         m_bucket,
-                        userid, fileid, sign)) {
+                        fileid, sign)) {
 			return SetError(-1, "create app sign failed");
 		}
 		String qcloud_sign = sign.toString();
@@ -309,8 +307,8 @@ public class PicCloud {
 	 * @param info	 	返回的图片信息
 	 * @return 			错误码，0为成功
 	 */
-	public int Stat(String userid, String fileid, PicInfo info) {
-		String req_url = GetUrl(userid, fileid);
+	public int Stat(String fileid, PicInfo info) {
+		String req_url = GetUrl("0", fileid);
 		String rsp = "";
 
 		try {
@@ -364,15 +362,15 @@ public class PicCloud {
 	 * @param result	 返回的图片的上传信息
 	 * @return 错误码，0为成功
 	 */
-	public int Copy(String userid, String fileid, UploadResult result) {
-		String req_url = GetUrl(userid, fileid) + "/copy";
+	public int Copy(String fileid, UploadResult result) {
+		String req_url = GetUrl("0", fileid) + "/copy";
 		String rsp = "";
 
 		// create sign once
 		StringBuffer sign = new StringBuffer("");
 		if (0 != FileCloudSign.appSignOnceV2(Integer.toString(m_appid),m_secret_id, m_secret_key,
                         m_bucket,
-                        userid, fileid, sign)) {
+                        fileid, sign)) {
 			return SetError(-1, "create app sign failed");
 		}
 		String qcloud_sign = sign.toString();
@@ -425,9 +423,9 @@ public class PicCloud {
 	 * @param fileName	 下载图片的保存路径
 	 * @return 错误码，0为成功
 	 */
-	public int Download(String userid, String fileid, String fileName) {
-		String download_url = GetDownloadUrl(userid, fileid);
-		return Download(download_url, fileName);
+	public int Download(String fileid, String fileName) {
+		String download_url = GetDownloadUrl("0", fileid);
+		return DownloadByUrl(download_url, fileName);
 	}
 
 	/**
@@ -437,17 +435,17 @@ public class PicCloud {
 	 * @param fileName		下载图片的保存路径
 	 * @return 错误码，0为成功
 	 */
-	public int DownloadEx(String userid, String fileid, String fileName) {
-		String download_url =  GetDownloadUrl(userid, fileid);
+	public int DownloadEx(String fileid, String fileName) {
+		String download_url =  GetDownloadUrl("0", fileid);
 		// create sign once
 		StringBuffer sign = new StringBuffer("");
 		if (0 != FileCloudSign.appSignOnceV2(Integer.toString(m_appid), m_secret_id, m_secret_key, 
                                 m_bucket,
-                                userid, fileid, sign)) {
+                                fileid, sign)) {
 			return SetError(-1, "create app sign failed");
 		}
 		download_url += "?sign=" + sign;
-		return Download(download_url, fileName);
+		return DownloadByUrl(download_url, fileName);
 	}
 
 	/**
@@ -456,7 +454,7 @@ public class PicCloud {
 	 * @param fileName           下载图片的保存路径
 	 * @return 错误码，0为成功
 	 */
-	public int Download(String download_url, String fileName) {
+	public int DownloadByUrl(String download_url, String fileName) {
 		if ("".equals(fileName)) {
 			return SetError(-1, "file name is empty.");
 		}

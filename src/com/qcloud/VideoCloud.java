@@ -106,16 +106,14 @@ public class VideoCloud {
 			String desc, String magicContext, UploadResult result) {
 		String req_url = "http://" + QCLOUD_DOMAIN + "/" + m_appid + "/"
 				+ userid;
-		String BOUNDARY = "---------------------------"
-				+ MD5.stringToMD5(String.valueOf(System.currentTimeMillis()))
-						.substring(0, 15);
+		String BOUNDARY = "---------------------------abcdefg1234567";
 		String rsp = "";
 
 		// create sign
 		StringBuffer sign = new StringBuffer("");
 		long expired = System.currentTimeMillis() / 1000 + 2592000;
 		if (FileCloudSign.appSign(Integer.toString(m_appid), m_secret_id,
-				m_secret_key, expired, userid, sign) != 0) {
+				m_secret_key, expired, sign) != 0) {
 			return SetError(-1, "create app sign failed");
 		}
 		String qcloud_sign = sign.toString();
@@ -222,7 +220,7 @@ public class VideoCloud {
 		// create sign once
 		StringBuffer sign = new StringBuffer("");
 		if (0 != FileCloudSign.appSignOnce(Integer.toString(m_appid),
-				m_secret_id, m_secret_key, userid, fileid, sign)) {
+				m_secret_id, m_secret_key, fileid, sign)) {
 			return SetError(-1, "create app sign failed");
 		}
 		String qcloud_sign = sign.toString();
@@ -344,9 +342,7 @@ public class VideoCloud {
 			String desc, String magicContext, UploadResult result) {
 		String req_url = "http://" + QCLOUD_DOMAIN + "/" + m_appid + "/"
 				+ userid;
-		String BOUNDARY = "---------------------------"
-				+ MD5.stringToMD5(String.valueOf(System.currentTimeMillis()))
-						.substring(0, 15);
+		String BOUNDARY = "---------------------------abcdefg1234567";
 		String rsp = "";
 		long fileSize = 0;
 		File file;
@@ -365,7 +361,7 @@ public class VideoCloud {
 		StringBuffer sign = new StringBuffer("");
 		long expired = System.currentTimeMillis() / 1000 + 2592000;
 		if (FileCloudSign.appSign(Integer.toString(m_appid), m_secret_id,
-				m_secret_key, expired, userid, sign) != 0) {
+				m_secret_key, expired, sign) != 0) {
 			return SetError(-1, "create app sign failed");
 		}
 		String qcloud_sign = sign.toString();
@@ -483,16 +479,14 @@ public class VideoCloud {
 			int offset, UploadResult result) {
 		String req_url = "http://" + QCLOUD_DOMAIN + "/" + m_appid + "/"
 				+ userid;
-		String BOUNDARY = "---------------------------"
-				+ MD5.stringToMD5(String.valueOf(System.currentTimeMillis()))
-						.substring(0, 15);
+		String BOUNDARY = "---------------------------abcdefg1234567";
 		String rsp = "";
 
 		// create sign
 		StringBuffer sign = new StringBuffer("");
 		long expired = System.currentTimeMillis() / 1000 + 2592000;
 		if (FileCloudSign.appSign(Integer.toString(m_appid), m_secret_id,
-				m_secret_key, expired, userid, sign) != 0) {
+				m_secret_key, expired, sign) != 0) {
 			return SetError(-1, "create app sign failed");
 		}
 		String qcloud_sign = sign.toString();

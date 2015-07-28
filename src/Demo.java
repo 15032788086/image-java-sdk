@@ -1,5 +1,7 @@
 import com.qcloud.*;
 import com.qcloud.sign.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Demo {
 	// appid, access id, access key请去http://app.qcloud.com申请使用
@@ -14,12 +16,14 @@ public class Demo {
         public static final String BUCKET = "testa";        //空间名
 
 	public static void main(String[] args) {
+            sign_test();
             //v1版本api的demo
             picV1_test("D:/test.jpg");
             //v2版本api的demo
-            //picV2_test("D:/test.jpg");
+            picV2_test("D:/test.jpg");
             //视频api的demo
             //video_test("D:/2M.MOV");
+            sign_test();
 	}
         
         public static void sign_test(){
@@ -29,7 +33,7 @@ public class Demo {
 		final String secretkey = "igjJ4aZbZJnBBwxVZASnmUP95EcTFPqd";
 
              StringBuffer sign = new StringBuffer("");
-            FileCloudSign.appSignV2(appid, secretid, secretkey, "", 3600, "0", sign);
+            FileCloudSign.appSignV2(appid, secretid, secretkey, "", 3600, sign);
             System.out.println(sign.toString());
             
         }
@@ -45,7 +49,6 @@ public class Demo {
         }
 
 	public static void pic_base(PicCloud pc, String pic) {
-		String userid = "1234567";
 		String url = "";
 		String download_url = "";
 		UploadResult result = new UploadResult();
@@ -54,7 +57,7 @@ public class Demo {
 
 		// 涓婁紶涓�寮犲浘鐗�
 		System.out.println("======================================================");
-		int ret = pc.Upload(userid, pic, result);
+		int ret = pc.Upload(pic, result);
 		if (ret == 0) {
 			System.out.println("upload pic success");
 			result.Print();
@@ -68,7 +71,7 @@ public class Demo {
 		// ret = pc.Download(userid, result.fileid, "./download.jpg");
 		// ret = pc.Download(result.download_url, "./download.jpg");
 		// 寮�鍚槻鐩楅摼
-		ret = pc.DownloadEx(userid, result.fileid, "./a.jpg");
+		ret = pc.DownloadEx(result.fileid, "./a.jpg");
 		if (ret == 0) {
 			System.out.println("download pic success");
 		} else {
@@ -77,7 +80,7 @@ public class Demo {
 
 		// 鏌ヨ鍥剧墖鐘舵��
 		System.out.println("======================================================");
-		ret = pc.Stat(userid, result.fileid, info);
+		ret = pc.Stat(result.fileid, info);
 		if (ret == 0) {
 			System.out.println("Stat pic success");
 			info.Print();
@@ -87,17 +90,17 @@ public class Demo {
 
 		// 澶嶅埗鍥剧墖
 		System.out.println("======================================================");
-		ret = pc.Copy(userid, result.fileid, result2);
+		ret = pc.Copy(result.fileid, result2);
 		if (ret == 0) {
 			System.out.println("copy pic success");
 			result2.Print();
 		} else {
 			System.out.println("copy pic error, error=" + pc.GetError());
-		}
-
+		}     
+                
 		// 鏌ヨ澶嶅埗鐨勫浘鐗囩殑鐘舵��
 		System.out.println("======================================================");
-		ret = pc.Stat(userid, result.fileid, info);
+		ret = pc.Stat(result.fileid, info);
 		if (ret == 0) {
 			System.out.println("Stat pic success");
 			info.Print();
@@ -106,21 +109,21 @@ public class Demo {
 		}
 
 		// 鍒犻櫎鍥剧墖
-		/*System.out.println("======================================================");
-		ret = pc.Delete(userid, result.fileid);
+		System.out.println("======================================================");
+		ret = pc.Delete(result.fileid);
 		if (ret == 0) {
 			System.out.println("delete pic success");
 		} else {
 			System.out.println("delete pic error, error=" + pc.GetError());
 		}
-                */
+                
                 
                 //test fuzzy and food
                 System.out.println("======================================================");
                 PicAnalyze flag = new PicAnalyze();
                 flag.fuzzy = 1;
                 flag.food = 1;
-                ret = pc.Upload(userid, pic, "", flag, result);
+                ret = pc.Upload(pic, "", flag, result);
 		if (ret == 0) {
 			System.out.println("analyze pic success");
                         System.out.println("is fuzzy =" + result.analyze.fuzzy);

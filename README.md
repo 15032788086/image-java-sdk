@@ -6,6 +6,17 @@ java sdk for picture service of tencentyun.
 
 版本信息
 ----------------------------------- 
+### v2.0.3
+加入commons-codec包，不再自行base64。
+去掉userid（图片服务已经强制为0）。
+
+### v2.0.2
+修复jar包打包的问题。
+改用jdk1.6编译。
+
+### v2.0.1
+修复fileid为null的bug
+
 ### v2.0.0
 支持2.0版本的图片restful api。内部实现了高度封装，对开发者透明。
 

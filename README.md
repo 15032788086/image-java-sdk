@@ -6,6 +6,9 @@ java sdk for picture service of tencentyun.
 
 版本信息
 ----------------------------------- 
+### v2.0.4
+对fileid urlencode,用于对特殊字符可能的支持。
+
 ### v2.0.3
 加入commons-codec包，不再自行base64。
 去掉userid（图片服务已经强制为0）。
@@ -67,9 +70,9 @@ How to start
 	//UploadResult是上传的返回结果
 	UploadResult result = new UploadResult();
 	//最简单的上传接口，提供userid和图片路径即可
-	int ret = Upload(userid, fileName, result);
+	int ret = Upload(fileName, result);
 	//可以自定义fileid的上传接口
-	int ret = Upload(userid, fileName, fileid, result);
+	int ret = Upload(fileName, fileid, result);
 如果需要上传视频
 		
 	//直接上传
@@ -79,26 +82,22 @@ How to start
 #### 复制图片
 		
 	UploadResult result = new UploadResult();
-	int ret = pc.Copy(userid, fileid, result);
+	int ret = pc.Copy(fileid, result);
 #### 查询图片(视频)
 		
 	//图片查询
 	PicInfo picInfo = new PicInfo();	
-	int ret = pc.Stat(userid, fileid, picInfo);
+	int ret = pc.Stat(fileid, picInfo);
 	//视频查询
 	VideoInfo videoInfo = new VideoInfo();	
 	ret = vc.Stat(userid, fileid, videoInfo);
 #### 删除图片(视频)
 		
-	ret = pc.Delete(userid, fileid);
+	ret = pc.Delete(fileid);
 #### 下载图片
 下载图片直接利用图片的下载url即可，开发者可以自行处理，这里提供的是本地下载的方法。
 如果开启了防盗链，还需要在下载url后面追加签名，如果要自行处理，请参考腾讯云的wiki页，熟悉鉴权签名的算法。
 		
-	//不开启防盗链
-	//ret = pc.Download(userid, result.fileid, "./download.jpg");
-	//开启防盗链
-    	ret = pc.DownloadEx(userid, result.fileid, "./download.jpg");
-	//直接提供url下载
+	//根据url下载
 	//ret = pc.Download(result.download_url, "./download.jpg");
 

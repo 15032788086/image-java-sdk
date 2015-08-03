@@ -27,14 +27,9 @@ public class Demo {
 	}
         
         public static void sign_test(){
-            final String appid = "10001479";
-		final String bucket = "hudie";
-		final String secretid = "AKIDPC3BSSVrTtcqPSgU471lUqEL98x9uWy3";
-		final String secretkey = "igjJ4aZbZJnBBwxVZASnmUP95EcTFPqd";
-
-             StringBuffer sign = new StringBuffer("");
-            FileCloudSign.appSignV2(appid, secretid, secretkey, "", 3600, sign);
-            System.out.println(sign.toString());
+            PicCloud pc = new PicCloud(APP_ID_V2, SECRET_ID_V2, SECRET_KEY_V2, BUCKET);
+            String sign = pc.GetSign(3600);
+            System.out.println("sign="+sign);
             
         }
         
@@ -55,7 +50,7 @@ public class Demo {
 		UploadResult result2 = new UploadResult();
 		PicInfo info = new PicInfo();
 
-		// 涓婁紶涓�寮犲浘鐗�
+		// 上传一张图片�
 		System.out.println("======================================================");
 		int ret = pc.Upload(pic, result);
 		if (ret == 0) {
@@ -66,19 +61,16 @@ public class Demo {
 		}
 
 		System.out.println("======================================================");
-		// 鏍规嵁鏄惁寮�鍚槻鐩楅摼锛岄�夋嫨姝ｇ‘鐨勪笅杞芥柟娉�
-		// 涓嶅紑鍚槻鐩楅摼
-		// ret = pc.Download(userid, result.fileid, "./download.jpg");
-		// ret = pc.Download(result.download_url, "./download.jpg");
-		// 寮�鍚槻鐩楅摼
-		ret = pc.DownloadEx(result.fileid, "./a.jpg");
+		// 下载一张图片
+                // 注意，如果开启了防盗链，请在url里自己加上前面
+		ret = pc.Download(result.download_url, "./test2.jpg");
 		if (ret == 0) {
 			System.out.println("download pic success");
 		} else {
 			System.out.println("download pic error, error=" + pc.GetError());
 		}
 
-		// 鏌ヨ鍥剧墖鐘舵��
+		// 查询图片的状态��
 		System.out.println("======================================================");
 		ret = pc.Stat(result.fileid, info);
 		if (ret == 0) {
@@ -88,7 +80,7 @@ public class Demo {
 			System.out.println("Stat pic error, error=" + pc.GetError());
 		}
 
-		// 澶嶅埗鍥剧墖
+		// 复制一张图片
 		System.out.println("======================================================");
 		ret = pc.Copy(result.fileid, result2);
 		if (ret == 0) {
@@ -97,18 +89,9 @@ public class Demo {
 		} else {
 			System.out.println("copy pic error, error=" + pc.GetError());
 		}     
-                
-		// 鏌ヨ澶嶅埗鐨勫浘鐗囩殑鐘舵��
-		System.out.println("======================================================");
-		ret = pc.Stat(result.fileid, info);
-		if (ret == 0) {
-			System.out.println("Stat pic success");
-			info.Print();
-		} else {
-			System.out.println("Stat pic error, error=" + pc.GetError());
-		}
 
-		// 鍒犻櫎鍥剧墖
+		// 删除一张图片
+                /*
 		System.out.println("======================================================");
 		ret = pc.Delete(result.fileid);
 		if (ret == 0) {
@@ -116,6 +99,7 @@ public class Demo {
 		} else {
 			System.out.println("delete pic error, error=" + pc.GetError());
 		}
+                        */
                 
                 
                 //test fuzzy and food

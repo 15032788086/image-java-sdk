@@ -9,11 +9,14 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import org.json.JSONObject;
 import org.json.JSONException;
 
 import com.qcloud.sign.*;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -92,7 +95,13 @@ public class PicCloud {
                 url = String.format("http://web.%s/photos/v2/%d/%s/%s", QCLOUD_DOMAIN, m_appid, m_bucket, userid);
             }
             if ("".equals(fileid) == false) {
-                url += "/"+fileid;
+                String params = fileid;
+                try {
+                    params = java.net.URLEncoder.encode(fileid, "ISO-8859-1");
+                } catch (UnsupportedEncodingException ex) {
+                    System.out.printf("url encode failed, fileid=%s", fileid);
+                }
+                url += "/"+params;
             }
             return url;
         }
@@ -155,15 +164,14 @@ public class PicCloud {
                 req_url += "?analyze="+query_string.substring(1);
             }
 
+            System.out.println("url="+req_url);
             // create sign
-            StringBuffer sign = new StringBuffer("");
             long expired = System.currentTimeMillis() / 1000 + 2592000;
-            if (FileCloudSign.appSignV2(Integer.toString(m_appid), m_secret_id,m_secret_key, 
-                    m_bucket,
-                    expired, sign) != 0) {
+            String sign = FileCloudSign.appSignV2(m_appid, m_secret_id, m_secret_key, m_bucket, expired);
+            if (null == sign) {
                     return SetError(-1, "create app sign failed");
             }
-            String qcloud_sign = sign.toString();
+            System.out.println("sign="+sign);
 
             try {
                     URL realUrl = new URL(req_url);
@@ -174,7 +182,7 @@ public class PicCloud {
                     connection.setRequestProperty("accept", "*/*");
                     connection.setRequestProperty("Host", "web.image.myqcloud.com");
                     connection.setRequestProperty("user-agent", "qcloud-java-sdk");
-                    connection.setRequestProperty("Authorization", qcloud_sign);
+                    connection.setRequestProperty("Authorization", sign);
 
                     connection.setDoInput(true);
                     connection.setDoOutput(true);
@@ -258,13 +266,11 @@ public class PicCloud {
 		String rsp = "";
 
 		// create sign once
-		StringBuffer sign = new StringBuffer("");
-		if (0 != FileCloudSign.appSignOnceV2(Integer.toString(m_appid),m_secret_id, m_secret_key,
-                        m_bucket,
-                        fileid, sign)) {
-			return SetError(-1, "create app sign failed");
-		}
-		String qcloud_sign = sign.toString();
+                String sign = FileCloudSign.appSignOnceV2(m_appid, m_secret_id, m_secret_key, m_bucket, fileid);
+                if (null == sign) {
+                    return SetError(-1, "create app sign failed");
+                }
+                System.out.println("sign="+sign);
 
 		try {
 			URL realUrl = new URL(req_url);
@@ -275,7 +281,7 @@ public class PicCloud {
 			connection.setRequestProperty("accept", "*/*");
 			connection.setRequestProperty("Host", "web.image.myqcloud.com");
 			connection.setRequestProperty("user-agent", "qcloud-java-sdk");
-			connection.setRequestProperty("Authorization", qcloud_sign);
+			connection.setRequestProperty("Authorization", sign);
 
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
@@ -367,13 +373,11 @@ public class PicCloud {
 		String rsp = "";
 
 		// create sign once
-		StringBuffer sign = new StringBuffer("");
-		if (0 != FileCloudSign.appSignOnceV2(Integer.toString(m_appid),m_secret_id, m_secret_key,
-                        m_bucket,
-                        fileid, sign)) {
-			return SetError(-1, "create app sign failed");
-		}
-		String qcloud_sign = sign.toString();
+		String sign = FileCloudSign.appSignOnceV2(m_appid, m_secret_id, m_secret_key, m_bucket, fileid);
+                if (null == sign) {
+                    return SetError(-1, "create app sign failed");
+                }
+                System.out.println("sign="+sign);
 
 		try {
 			URL realUrl = new URL(req_url);
@@ -384,7 +388,7 @@ public class PicCloud {
 			connection.setRequestProperty("accept", "*/*");
 			connection.setRequestProperty("Host", "web.image.myqcloud.com");
 			connection.setRequestProperty("user-agent", "qcloud-java-sdk");
-			connection.setRequestProperty("Authorization", qcloud_sign);
+			connection.setRequestProperty("Authorization", sign);
 
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
@@ -423,71 +427,48 @@ public class PicCloud {
 	 * @param fileName	 下载图片的保存路径
 	 * @return 错误码，0为成功
 	 */
-	public int Download(String fileid, String fileName) {
-		String download_url = GetDownloadUrl("0", fileid);
-		return DownloadByUrl(download_url, fileName);
+	public int Download(String url, String fileName) {
+            if ("".equals(fileName)) {
+                return SetError(-1, "file name is empty.");
+            }
+            String rsp = "";
+            try {
+		URL realUrl = new URL(url);
+		HttpURLConnection connection = (HttpURLConnection) realUrl
+				.openConnection();
+		// set header
+		connection.setRequestMethod("GET");
+		connection.setRequestProperty("Host", "web.image.myqcloud.com");
+		connection.setRequestProperty("user-agent", "qcloud-java-sdk");
+
+		connection.setDoInput(true);
+		connection.setDoOutput(true);
+		connection.connect();
+
+                InputStream in = new DataInputStream(connection.getInputStream());
+                File file = new File(fileName);
+                DataOutputStream ops = new DataOutputStream(new FileOutputStream(
+                                file));
+                int bytes = 0;
+                byte[] bufferOut = new byte[1024];
+                while ((bytes = in.read(bufferOut)) > 0) {
+                        ops.write(bufferOut, 0, bytes);
+                }
+                ops.close();
+                in.close();
+            } catch (Exception e) {
+		return SetError(-1, "url exception, e=" + e.toString());
+            }
+
+            return SetError(0, "success");
 	}
-
-	/**
-	 * DownloadEx 下载图片（启用防盗链）
-	 * @param userid		 业务账号,没有填0
-	 * @param fileid		图片的唯一标识
-	 * @param fileName		下载图片的保存路径
-	 * @return 错误码，0为成功
-	 */
-	public int DownloadEx(String fileid, String fileName) {
-		String download_url =  GetDownloadUrl("0", fileid);
-		// create sign once
-		StringBuffer sign = new StringBuffer("");
-		if (0 != FileCloudSign.appSignOnceV2(Integer.toString(m_appid), m_secret_id, m_secret_key, 
-                                m_bucket,
-                                fileid, sign)) {
-			return SetError(-1, "create app sign failed");
-		}
-		download_url += "?sign=" + sign;
-		return DownloadByUrl(download_url, fileName);
-	}
-
-	/**
-	 * Download 下载图片（直接提供url的方式，如果启动防盗链，需要提前自己添加sign）
-	 * @param download_url	             下载url
-	 * @param fileName           下载图片的保存路径
-	 * @return 错误码，0为成功
-	 */
-	public int DownloadByUrl(String download_url, String fileName) {
-		if ("".equals(fileName)) {
-			return SetError(-1, "file name is empty.");
-		}
-		String rsp = "";
-		try {
-			URL realUrl = new URL(download_url);
-			HttpURLConnection connection = (HttpURLConnection) realUrl
-					.openConnection();
-			// set header
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Host", "web.image.myqcloud.com");
-			connection.setRequestProperty("user-agent", "qcloud-java-sdk");
-
-			connection.setDoInput(true);
-			connection.setDoOutput(true);
-			connection.connect();
-
-			InputStream in = new DataInputStream(connection.getInputStream());
-			File file = new File(fileName);
-			DataOutputStream ops = new DataOutputStream(new FileOutputStream(
-					file));
-			int bytes = 0;
-			byte[] bufferOut = new byte[1024];
-			while ((bytes = in.read(bufferOut)) > 0) {
-				ops.write(bufferOut, 0, bytes);
-			}
-			ops.close();
-			in.close();
-		} catch (Exception e) {
-			return SetError(-1, "url exception, e=" + e.toString());
-		}
-
-		return SetError(0, "success");
-	}
+        
+        public String GetSign(long expired) {
+            return FileCloudSign.appSignV2(m_appid, m_secret_id, m_secret_key, m_bucket, expired);
+        }
+            
+        public String GetSignOnce(String fileid) {
+            return FileCloudSign.appSignOnceV2(m_appid, m_secret_id, m_secret_key, m_bucket, fileid);
+        }  
 
 };

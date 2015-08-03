@@ -110,13 +110,12 @@ public class VideoCloud {
 		String rsp = "";
 
 		// create sign
-		StringBuffer sign = new StringBuffer("");
 		long expired = System.currentTimeMillis() / 1000 + 2592000;
-		if (FileCloudSign.appSign(Integer.toString(m_appid), m_secret_id,
-				m_secret_key, expired, sign) != 0) {
-			return SetError(-1, "create app sign failed");
-		}
-		String qcloud_sign = sign.toString();
+                String sign = FileCloudSign.appSign(m_appid, m_secret_id, m_secret_key, expired);
+                if (null == sign) {
+                    return SetError(-1, "create app sign failed");
+                }
+                System.out.println("sign="+sign);
 
 		try {
 			URL realUrl = new URL(req_url);
@@ -127,7 +126,7 @@ public class VideoCloud {
 			connection.setRequestProperty("accept", "*/*");
 			connection.setRequestProperty("Host", "web.video.myqcloud.com");
 			connection.setRequestProperty("user-agent", "qcloud-java-sdk");
-			connection.setRequestProperty("Authorization", qcloud_sign);
+			connection.setRequestProperty("Authorization", sign);
 
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
@@ -218,12 +217,11 @@ public class VideoCloud {
 		String rsp = "";
 
 		// create sign once
-		StringBuffer sign = new StringBuffer("");
-		if (0 != FileCloudSign.appSignOnce(Integer.toString(m_appid),
-				m_secret_id, m_secret_key, fileid, sign)) {
-			return SetError(-1, "create app sign failed");
-		}
-		String qcloud_sign = sign.toString();
+		String sign = FileCloudSign.appSignOnce(m_appid, m_secret_id, m_secret_key, fileid);
+                if (null == sign) {
+                    return SetError(-1, "create app sign failed");
+                }
+                System.out.println("sign="+sign);
 
 		try {
 			URL realUrl = new URL(req_url);
@@ -234,7 +232,7 @@ public class VideoCloud {
 			connection.setRequestProperty("accept", "*/*");
 			connection.setRequestProperty("Host", "web.image.myqcloud.com");
 			connection.setRequestProperty("user-agent", "qcloud-java-sdk");
-			connection.setRequestProperty("Authorization", qcloud_sign);
+			connection.setRequestProperty("Authorization", sign);
 
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
@@ -358,13 +356,12 @@ public class VideoCloud {
 		}
 
 		// create sign
-		StringBuffer sign = new StringBuffer("");
-		long expired = System.currentTimeMillis() / 1000 + 2592000;
-		if (FileCloudSign.appSign(Integer.toString(m_appid), m_secret_id,
-				m_secret_key, expired, sign) != 0) {
-			return SetError(-1, "create app sign failed");
-		}
-		String qcloud_sign = sign.toString();
+                long expired = System.currentTimeMillis() / 1000 + 2592000;
+                String sign = FileCloudSign.appSign(m_appid, m_secret_id, m_secret_key, expired);
+                if (null == sign) {
+                    return SetError(-1, "create app sign failed");
+                }
+                System.out.println("sign="+sign);
 
 		try {
 			URL realUrl = new URL(req_url);
@@ -375,7 +372,7 @@ public class VideoCloud {
 			connection.setRequestProperty("accept", "*/*");
 			connection.setRequestProperty("Host", "web.video.myqcloud.com");
 			connection.setRequestProperty("user-agent", "qcloud-java-sdk");
-			connection.setRequestProperty("Authorization", qcloud_sign);
+			connection.setRequestProperty("Authorization", sign);
 
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
@@ -483,13 +480,12 @@ public class VideoCloud {
 		String rsp = "";
 
 		// create sign
-		StringBuffer sign = new StringBuffer("");
-		long expired = System.currentTimeMillis() / 1000 + 2592000;
-		if (FileCloudSign.appSign(Integer.toString(m_appid), m_secret_id,
-				m_secret_key, expired, sign) != 0) {
-			return SetError(-1, "create app sign failed");
-		}
-		String qcloud_sign = sign.toString();
+                long expired = System.currentTimeMillis() / 1000 + 2592000;
+                String sign = FileCloudSign.appSign(m_appid, m_secret_id, m_secret_key, expired);
+                if (null == sign) {
+                    return SetError(-1, "create app sign failed");
+                }
+                System.out.println("sign="+sign);
 
 		try {
 			URL realUrl = new URL(req_url);
@@ -500,7 +496,7 @@ public class VideoCloud {
 			connection.setRequestProperty("accept", "*/*");
 			connection.setRequestProperty("Host", "web.video.myqcloud.com");
 			connection.setRequestProperty("user-agent", "qcloud-java-sdk");
-			connection.setRequestProperty("Authorization", qcloud_sign);
+			connection.setRequestProperty("Authorization", sign);
 
 			connection.setDoInput(true);
 			connection.setDoOutput(true);

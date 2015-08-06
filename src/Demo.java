@@ -28,7 +28,8 @@ public class Demo {
         
         public static void sign_test(){
             PicCloud pc = new PicCloud(APP_ID_V2, SECRET_ID_V2, SECRET_KEY_V2, BUCKET);
-            String sign = pc.GetSign(3600);
+            long expired = System.currentTimeMillis() / 1000 + 3600;
+            String sign = pc.GetSign(expired);
             System.out.println("sign="+sign);
             
         }

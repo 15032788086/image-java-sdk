@@ -1,3 +1,7 @@
 *.xml
-target/
-!target/*.jar
+target/apidocs
+target/classes
+target/generated-sources
+target/javadoc-bundle-options
+target/maven-status
+target/test-classes

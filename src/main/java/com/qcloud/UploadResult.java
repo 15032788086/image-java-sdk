@@ -11,25 +11,25 @@ package com.qcloud;
  */
 public class UploadResult {
 	public String url; // 资源url
-	public String download_url; // 下载url
-	public String fileid; // 资源的唯一标识
-	public String cover_url; // 视频资源的封面url，只有转码过的视频才有，默认是黑屏后的第一帧
+	public String downloadUrl; // 下载url
+	public String fileId; // 资源的唯一标识
+	public String coverUrl; // 视频资源的封面url，只有转码过的视频才有，默认是黑屏后的第一帧
         public PicAnalyze analyze; //图片分析的结果
 
 	public UploadResult() {
 		url = "";
-		download_url = "";
-		fileid = "";
-		cover_url = "";
+		downloadUrl = "";
+		fileId = "";
+		coverUrl = "";
                 analyze = new PicAnalyze();
 	}
 
-	public void Print() {
+	public void print() {
 		System.out.println("url = " + url);
-		System.out.println("download_url = " + download_url);
-		System.out.println("fileid = " + fileid);
-		if (cover_url.length() > 0) {
-			System.out.println("cover_url = " + cover_url);
+		System.out.println("downloadUrl = " + downloadUrl);
+		System.out.println("fileId = " + fileId);
+		if (coverUrl.length() > 0) {
+			System.out.println("coverUrl = " + coverUrl);
 		}
 	}
 };

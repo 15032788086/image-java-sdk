@@ -8,115 +8,111 @@ package com.qcloud;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
 import org.json.JSONObject;
 import org.json.JSONException;
 
 import com.qcloud.sign.*;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author jusisli
  */
 public class PicCloud {
-        protected static String VERSION = "2.0.0";
+        protected static String VERSION = "2.1.0";
 	protected static String QCLOUD_DOMAIN = "image.myqcloud.com";
 
-	protected int m_appid;
-	protected String m_secret_id;
-	protected String m_secret_key;
-        protected String m_bucket;
+	protected int mAppId;
+	protected String mSecretId;
+	protected String mSecretKey;
+        protected String mBucket;
 
-	protected int m_errno;
-	protected String m_error;
+	protected int mErrno;
+	protected String mError;
 
 	/**
 	 * PicCloud 构造方法
-	 * @param appid				授权appid
-	 * @param secret_id			授权secret_id
-	 * @param secret_key                   授权secret_key
+	 * @param appId				授权appId
+	 * @param secretId			授权secret_id
+	 * @param secretKey                   授权secret_key
 	 */
-	public PicCloud(int appid, String secret_id, String secret_key) {
-            m_appid = appid;
-            m_secret_id = secret_id;
-            m_secret_key = secret_key;
-            m_errno = 0;
-            m_bucket = "";
-            m_error = "";
+	public PicCloud(int appId, String secretId, String secretKey) {
+            mAppId = appId;
+            mSecretId = secretId;
+            mSecretKey = secretKey;
+            mErrno = 0;
+            mBucket = "";
+            mError = "";
 	}
         
         	/**
 	 * PicCloud 构造方法
-	 * @param appid				授权appid
+	 * @param appId				授权appId
 	 * @param secret_id			授权secret_id
 	 * @param secret_key                   授权secret_key
          * @param bucket `                     空间名 
 	 */
-	public PicCloud(int appid, String secret_id, String secret_key, String bucket) {
-            m_appid = appid;
-            m_secret_id = secret_id;
-            m_secret_key = secret_key;
-            m_bucket = bucket;
-            m_errno = 0;
-            m_error = "";
+	public PicCloud(int appId, String secret_id, String secret_key, String bucket) {
+            mAppId = appId;
+            mSecretId = secret_id;
+            mSecretKey = secret_key;
+            mBucket = bucket;
+            mErrno = 0;
+            mError = "";
 	}
         
-        public String GetVersion(){
+        public String getVersion(){
             return VERSION;
         }
 
-	public int GetErrno() {
-            return m_errno;
+	public int getErrno() {
+            return mErrno;
 	}
 
-	public String GetErrMsg() {
-            return m_error;
+	public String getErrMsg() {
+            return mError;
 	}
 
-	public int SetError(int errno, String msg) {
-            m_errno = errno;
-            m_error = msg;
+	public int setError(int errno, String msg) {
+            mErrno = errno;
+            mError = msg;
             return errno;
 	}
 
-	public String GetError() {
-            return "errno=" + m_errno + " desc=" + m_error;
+	public String getError() {
+            return "errno=" + mErrno + " desc=" + mError;
 	}
         
-        public String GetUrl(String userid, String fileid){
-            String url = "";    
-            if ("".equals(m_bucket)) {
-                url = String.format("http://web.%s/photos/v1/%d/%s", QCLOUD_DOMAIN, m_appid, userid);
+        public String getUrl(String userid, String fileId){
+            String url;    
+            if ("".equals(mBucket)) {       
+                url = String.format("http://web.%s/photos/v1/%d/%s", QCLOUD_DOMAIN, mAppId, userid);
             }else{
-                url = String.format("http://web.%s/photos/v2/%d/%s/%s", QCLOUD_DOMAIN, m_appid, m_bucket, userid);
+                url = String.format("http://web.%s/photos/v2/%d/%s/%s", QCLOUD_DOMAIN, mAppId, mBucket, userid);
             }
-            if ("".equals(fileid) == false) {
-                String params = fileid;
+            if ("".equals(fileId) == false) {
+                String params = fileId;
                 try {
-                    params = java.net.URLEncoder.encode(fileid, "ISO-8859-1");
+                    params = java.net.URLEncoder.encode(fileId, "ISO-8859-1");
                 } catch (UnsupportedEncodingException ex) {
-                    System.out.printf("url encode failed, fileid=%s", fileid);
+                    System.out.printf("url encode failed, fileId=%s", fileId);
                 }
                 url += "/"+params;
             }
             return url;
         }
         
-        public String GetDownloadUrl(String userid, String fileid){
-            String url = "";    
-            if ("".equals(m_bucket)) {
-                url = String.format("http://%d.%s/%d/%s/%s/original", m_appid, QCLOUD_DOMAIN, m_appid, userid, fileid);
+        public String getDownloadUrl(String userid, String fileId){
+            String url;    
+            if ("".equals(mBucket)) {
+                url = String.format("http://%d.%s/%d/%s/%s/original", mAppId, QCLOUD_DOMAIN, mAppId, userid, fileId);
             }else{
-                url = String.format("http://%s-%d.%s/%s-%d/%s/%s/original", m_bucket, m_appid, QCLOUD_DOMAIN, m_bucket, m_appid, userid, fileid);
+                url = String.format("http://%s-%d.%s/%s-%d/%s/%s/original", mBucket, mAppId, QCLOUD_DOMAIN, mBucket, mAppId, userid, fileId);
             }
             return url;
         }
 
-        public String GetResponse(HttpURLConnection connection) throws IOException {
+        public String getResponse(HttpURLConnection connection) throws IOException {
             String rsp = "";
             BufferedReader in = new BufferedReader(new InputStreamReader(
                             connection.getInputStream()));
@@ -135,46 +131,62 @@ public class PicCloud {
 	 * @param result		返回的图片的上传信息
 	 * @return				错误码，0为成功
 	 */
-        public int Upload(String fileName, UploadResult result) {
-            return Upload(fileName, "", new PicAnalyze(), result);
+        public int upload(String fileName, UploadResult result) {
+            return upload(fileName, "", new PicAnalyze(), result);
         }
         
-	public int Upload(String fileName, String fileid, UploadResult result) {
-            return Upload(fileName, fileid, new PicAnalyze(), result);
+	public int upload(String fileName, String fileId, UploadResult result) {
+            return upload(fileName, fileId, new PicAnalyze(), result);
         }
         
-	public int Upload(String fileName, String fileid, PicAnalyze flag, UploadResult result) {
+	public int upload(String fileName, String fileId, PicAnalyze flag, UploadResult result) {
             if ("".equals(fileName)) {
-                return SetError(-1, "invalid file name");
+                return setError(-1, "invalid file name");
             }
             
-            String req_url = GetUrl("0", fileid);
+            FileInputStream fileStream = null;
+            try {
+                fileStream = new FileInputStream(fileName);
+            } catch (FileNotFoundException ex) {
+                return setError(-1, "invalid file name");
+            }
+            return upload(fileStream, fileId, flag, result);
+	}
+
+        public int upload(InputStream inputStream, UploadResult result) {
+            return upload(inputStream, "", new PicAnalyze(), result);
+        }
+        
+	public int upload(InputStream inputStream, String fileId, UploadResult result) {
+            return upload(inputStream, fileId, new PicAnalyze(), result);
+        }
+        
+        public int upload(InputStream inputStream, String fileId, PicAnalyze flag, UploadResult result) {
+            String reqUrl = getUrl("0", fileId);
             String BOUNDARY = "---------------------------abcdefg1234567";
-            String rsp = "";
+            String rsp;
 
             //check analyze flag
-            String query_string = "";
+            String queryString = "";
             if(flag.fuzzy != 0){
-                query_string += ".fuzzy";
+                queryString += ".fuzzy";
             }
             if(flag.food != 0){
-                query_string += ".food";
+                queryString += ".food";
             }
-            if ("".equals(query_string) == false) {
-                req_url += "?analyze="+query_string.substring(1);
+            if ("".equals(queryString) == false) {
+                reqUrl += "?analyze="+queryString.substring(1);
             }
 
-            System.out.println("url="+req_url);
             // create sign
             long expired = System.currentTimeMillis() / 1000 + 2592000;
-            String sign = FileCloudSign.appSignV2(m_appid, m_secret_id, m_secret_key, m_bucket, expired);
+            String sign = FileCloudSign.appSignV2(mAppId, mSecretId, mSecretKey, mBucket, expired);
             if (null == sign) {
-                    return SetError(-1, "create app sign failed");
+                    return setError(-1, "create app sign failed");
             }
-            System.out.println("sign="+sign);
 
             try {
-                    URL realUrl = new URL(req_url);
+                    URL realUrl = new URL(reqUrl);
                     HttpURLConnection connection = (HttpURLConnection) realUrl
                                     .openConnection();
                     // set header
@@ -192,55 +204,38 @@ public class PicCloud {
                     OutputStream out = new DataOutputStream(
                                     connection.getOutputStream());
                     StringBuilder strBuf = new StringBuilder();
+                    strBuf.append("\r\n").append("--").append(BOUNDARY).append("\r\n");
+                    strBuf.append("Content-Disposition: form-data; name=\"FileContent\"\r\n\r\n");
+                    out.write(strBuf.toString().getBytes());
 
-                    if (fileName != null) {
-                            File file = new File(fileName);
-                            String filename = file.getName();
-                            String contentType = URLConnection.getFileNameMap()
-                                            .getContentTypeFor(fileName);
-
-                            strBuf.append("\r\n").append("--").append(BOUNDARY)
-                                            .append("\r\n");
-                            strBuf.append(
-                                            "Content-Disposition: form-data; name=\"FileContent\"; filename=\"")
-                                            .append(fileName).append("\"\r\n");
-                            strBuf.append("Content-Type:").append(contentType)
-                                            .append("\r\n\r\n");
-
-                            out.write(strBuf.toString().getBytes());
-
-                            DataInputStream ins = new DataInputStream(new FileInputStream(
-                                            file));
-                            int bytes = 0;
-                            byte[] bufferOut = new byte[1024];
-                            while ((bytes = ins.read(bufferOut)) != -1) {
-                                    out.write(bufferOut, 0, bytes);
-                            }
+                    int bytes;
+                    byte[] bufferOut = new byte[1024];
+                    while ((bytes = inputStream.read(bufferOut)) != -1) {
+                        out.write(bufferOut, 0, bytes);
                     }
-
+                            
                     byte[] endData = ("\r\n--" + BOUNDARY + "--\r\n").getBytes();
                     out.write(endData);
                     out.flush();
                     out.close();
 
                     connection.connect();
-                    rsp = GetResponse(connection);
+                    rsp = getResponse(connection);
             } catch (Exception e) {
-                    return SetError(-1, "url exception, e=" + e.toString());
+                    return setError(-1, "url exception, e=" + e.toString());
             }
-            System.out.println("rsp=" + rsp);
             try {
                     JSONObject jsonObject = new JSONObject(rsp);
                     int code = jsonObject.getInt("code");
                     String msg = jsonObject.getString("message");
                     if (0 != code) {
-                            return SetError(code, msg);
+                            return setError(code, msg);
                     }
 
                     result.url = jsonObject.getJSONObject("data").getString("url");
-                    result.download_url = jsonObject.getJSONObject("data").getString(
+                    result.downloadUrl = jsonObject.getJSONObject("data").getString(
                                     "download_url");
-                    result.fileid = jsonObject.getJSONObject("data")
+                    result.fileId = jsonObject.getJSONObject("data")
                                     .getString("fileid");
 
                     if(jsonObject.getJSONObject("data").has("is_fuzzy")){
@@ -251,29 +246,28 @@ public class PicCloud {
                     }
 
             } catch (JSONException e) {
-                    return SetError(-1, "json exception, e=" + e.toString());
+                    return setError(-1, "json exception, e=" + e.toString());
             }
-            return SetError(0, "success");
+            return setError(0, "success");
 	}
-
+        
 	/**
 	 * Delete 删除图片
-	 * @param fileid		图片的唯一标识
+	 * @param fileId		图片的唯一标识
 	 * @return 				错误码，0为成功
 	 */
-	public int Delete(String fileid) {
-		String req_url = GetUrl("0", fileid) + "/del";
-		String rsp = "";
+	public int delete(String fileId) {
+		String reqUrl = getUrl("0", fileId) + "/del";
+		String rsp;
 
 		// create sign once
-                String sign = FileCloudSign.appSignOnceV2(m_appid, m_secret_id, m_secret_key, m_bucket, fileid);
+                String sign = FileCloudSign.appSignOnceV2(mAppId, mSecretId, mSecretKey, mBucket, fileId);
                 if (null == sign) {
-                    return SetError(-1, "create app sign failed");
+                    return setError(-1, "create app sign failed");
                 }
-                System.out.println("sign="+sign);
 
 		try {
-			URL realUrl = new URL(req_url);
+			URL realUrl = new URL(reqUrl);
 			HttpURLConnection connection = (HttpURLConnection) realUrl
 					.openConnection();
 			// set header
@@ -288,37 +282,37 @@ public class PicCloud {
 			connection.connect();
 
 			// read rsp
-			rsp = GetResponse(connection);
+			rsp = getResponse(connection);
 		} catch (Exception e) {
-			return SetError(-1, "url exception, e=" + e.toString());
+			return setError(-1, "url exception, e=" + e.toString());
 		}
-
+                
 		try {
 			JSONObject jsonObject = new JSONObject(rsp);
 			int code = jsonObject.getInt("code");
 			String msg = jsonObject.getString("message");
 			if (0 != code) {
-				return SetError(code, msg);
+				return setError(code, msg);
 			}
 		} catch (JSONException e) {
-			return SetError(-1, "json exception, e=" + e.toString());
+			return setError(-1, "json exception, e=" + e.toString());
 		}
 
-		return SetError(0, "success");
+		return setError(0, "success");
 	}
 
 	/**
 	 * Stat 查询图片信息
-	 * @param userid	业务账号,没有填0
+	 * @param fileId	图片fileid
 	 * @param info	 	返回的图片信息
 	 * @return 			错误码，0为成功
 	 */
-	public int Stat(String fileid, PicInfo info) {
-		String req_url = GetUrl("0", fileid);
-		String rsp = "";
+	public int stat(String fileId, PicInfo info) {
+		String reqUrl = getUrl("0", fileId);
+		String rsp;
 
 		try {
-			URL realUrl = new URL(req_url);
+			URL realUrl = new URL(reqUrl);
 			HttpURLConnection connection = (HttpURLConnection) realUrl
 					.openConnection();
 			// set header
@@ -331,9 +325,9 @@ public class PicCloud {
 			connection.connect();
 
 			// read rsp
-			rsp = GetResponse(connection);
+			rsp = getResponse(connection);
 		} catch (Exception e) {
-			return SetError(-1, "url exception, e=" + e.toString());
+			return setError(-1, "url exception, e=" + e.toString());
 		}
 
 		try {
@@ -341,13 +335,13 @@ public class PicCloud {
 			int code = jsonObject.getInt("code");
 			String msg = jsonObject.getString("message");
 			if (0 != code) {
-				return SetError(code, msg);
+				return setError(code, msg);
 			}
 
 			info.url = jsonObject.getJSONObject("data").getString("file_url");
-			info.fileid = jsonObject.getJSONObject("data").getString(
+			info.fileId = jsonObject.getJSONObject("data").getString(
 					"file_fileid");
-			info.upload_time = jsonObject.getJSONObject("data").getInt(
+			info.uploadTime = jsonObject.getJSONObject("data").getInt(
 					"file_upload_time");
 			info.size = jsonObject.getJSONObject("data").getInt("file_size");
 			info.md5 = jsonObject.getJSONObject("data").getString("file_md5");
@@ -355,32 +349,30 @@ public class PicCloud {
 			info.height = jsonObject.getJSONObject("data").getInt(
 					"photo_height");
 		} catch (JSONException e) {
-			return SetError(-1, "json exception, e=" + e.toString());
+			return setError(-1, "json exception, e=" + e.toString());
 		}
 
-		return SetError(0, "success");
+		return setError(0, "success");
 	}
 
 	/**
 	 * Copy 复制图片
-	 * @param userid	业务账号,没有填0
-	 * @param fileid	 图片的唯一标识
+	 * @param fileId	 图片的唯一标识
 	 * @param result	 返回的图片的上传信息
 	 * @return 错误码，0为成功
 	 */
-	public int Copy(String fileid, UploadResult result) {
-		String req_url = GetUrl("0", fileid) + "/copy";
-		String rsp = "";
+	public int copy(String fileId, UploadResult result) {
+		String reqUrl = getUrl("0", fileId) + "/copy";
+		String rsp;
 
 		// create sign once
-		String sign = FileCloudSign.appSignOnceV2(m_appid, m_secret_id, m_secret_key, m_bucket, fileid);
+		String sign = FileCloudSign.appSignOnceV2(mAppId, mSecretId, mSecretKey, mBucket, fileId);
                 if (null == sign) {
-                    return SetError(-1, "create app sign failed");
+                    return setError(-1, "create app sign failed");
                 }
-                System.out.println("sign="+sign);
 
 		try {
-			URL realUrl = new URL(req_url);
+			URL realUrl = new URL(reqUrl);
 			HttpURLConnection connection = (HttpURLConnection) realUrl
 					.openConnection();
 			// set header
@@ -395,9 +387,9 @@ public class PicCloud {
 			connection.connect();
 
 			// read rsp
-			rsp = GetResponse(connection);
+			rsp = getResponse(connection);
 		} catch (Exception e) {
-			return SetError(-1, "url exception, e=" + e.toString());
+			return setError(-1, "url exception, e=" + e.toString());
 		}
 
 		try {
@@ -405,31 +397,30 @@ public class PicCloud {
 			int code = jsonObject.getInt("code");
 			String msg = jsonObject.getString("message");
 			if (0 != code) {
-				return SetError(code, msg);
+				return setError(code, msg);
 			}
 
 			result.url = jsonObject.getJSONObject("data").getString("url");
-			result.download_url = jsonObject.getJSONObject("data").getString(
+			result.downloadUrl = jsonObject.getJSONObject("data").getString(
 					"download_url");
-			result.fileid = result.url
+			result.fileId = result.url
 					.substring(result.url.lastIndexOf('/') + 1);
 		} catch (JSONException e) {
-			return SetError(-1, "json exception, e=" + e.toString());
+			return setError(-1, "json exception, e=" + e.toString());
 		}
 
-		return SetError(0, "success");
+		return setError(0, "success");
 	}
 
 	/**
-	 * Download 下载图片（不启用防盗链）
-	 * @param userid	业务账号,没有填0
-	 * @param fileid	 图片的唯一标识
+	 * Download 下载图片
+	 * @param url           图片的唯一标识
 	 * @param fileName	 下载图片的保存路径
 	 * @return 错误码，0为成功
 	 */
-	public int Download(String url, String fileName) {
+	public int download(String url, String fileName) {
             if ("".equals(fileName)) {
-                return SetError(-1, "file name is empty.");
+                return setError(-1, "file name is empty.");
             }
             String rsp = "";
             try {
@@ -449,7 +440,7 @@ public class PicCloud {
                 File file = new File(fileName);
                 DataOutputStream ops = new DataOutputStream(new FileOutputStream(
                                 file));
-                int bytes = 0;
+                int bytes;
                 byte[] bufferOut = new byte[1024];
                 while ((bytes = in.read(bufferOut)) > 0) {
                         ops.write(bufferOut, 0, bytes);
@@ -457,18 +448,18 @@ public class PicCloud {
                 ops.close();
                 in.close();
             } catch (Exception e) {
-		return SetError(-1, "url exception, e=" + e.toString());
+		return setError(-1, "url exception, e=" + e.toString());
             }
 
-            return SetError(0, "success");
+            return setError(0, "success");
 	}
         
-        public String GetSign(long expired) {
-            return FileCloudSign.appSignV2(m_appid, m_secret_id, m_secret_key, m_bucket, expired);
+        public String getSign(long expired) {
+            return FileCloudSign.appSignV2(mAppId, mSecretId, mSecretKey, mBucket, expired);
         }
             
-        public String GetSignOnce(String fileid) {
-            return FileCloudSign.appSignOnceV2(m_appid, m_secret_id, m_secret_key, m_bucket, fileid);
+        public String getSignOnce(String fileId) {
+            return FileCloudSign.appSignOnceV2(mAppId, mSecretId, mSecretKey, mBucket, fileId);
         }  
 
 };

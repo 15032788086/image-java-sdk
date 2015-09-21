@@ -6,6 +6,11 @@ java sdk for picture service of tencentyun.
 
 版本信息
 ----------------------------------- 
+### v2.1.0
+重新规范化sdk代码，不兼容以前版本。
+重载upload接口，增加nputStream的输入方式。
+删除已经不再使用的视频api。
+
 ### v2.0.4
 对fileid urlencode,用于对特殊字符可能的支持。
 
@@ -54,50 +59,49 @@ How to start
 	PicCloud pc = new PicCloud(APP_ID, SECRET_ID, SECRET_KEY);
 	//v2版本
 	PicCloud pc = new PicCloud(APP_ID, SECRET_ID, SECRET_KEY, Bucket);
-	
-如果要使用视频，需要创建视频操作类对象
-		
-	VideoCloud vc = new VideoCloud(APP_ID, SECRET_ID, SECRET_KEY);	
 
 ### 3. 调用对应的方法
 在创建完对象后，根据实际需求，调用对应的操作方法就可以了。sdk提供的方法包括：签名计算、上传、复制、查询、下载和删除等。
 #### 获得版本信息
 		
 	String version = pc.GetVersion();
+
 #### 上传数据
 如果需要上传图片，根据不同的需求，可以选择不同的上传方法
 			
 	//UploadResult是上传的返回结果
 	UploadResult result = new UploadResult();
-	//最简单的上传接口，提供userid和图片路径即可
+	//////////////////////////////////////////////////
+	//如果希望使用文件上传
+	//1. 最简单的上传接口
 	int ret = Upload(fileName, result);
-	//可以自定义fileid的上传接口
+	//2. 可以自定义fileid的上传接口
 	int ret = Upload(fileName, fileid, result);
-如果需要上传视频
-		
-	//直接上传
-	int ret = vc.Upload(userid, video,"test_title","test_Desc","test_magic_context", result);
-	//视频分片上传
-	ret = vc.SliceUpload(userid, video,"test_title","test_Desc","test_magic_context", result);
+
+	//////////////////////////////////////////////////
+	//如果希望使用流式上传
+	//1. 最简单的上传接口
+	int ret = Upload(inputStream, result);
+	//2. 可以自定义fileid的上传接口
+	int ret = Upload(inputStream, fileid, result);
+
 #### 复制图片
 		
 	UploadResult result = new UploadResult();
 	int ret = pc.Copy(fileid, result);
-#### 查询图片(视频)
+
+#### 查询图片
 		
 	//图片查询
 	PicInfo picInfo = new PicInfo();	
 	int ret = pc.Stat(fileid, picInfo);
-	//视频查询
-	VideoInfo videoInfo = new VideoInfo();	
-	ret = vc.Stat(userid, fileid, videoInfo);
-#### 删除图片(视频)
+
+#### 删除图片
 		
 	ret = pc.Delete(fileid);
+
 #### 下载图片
-下载图片直接利用图片的下载url即可，开发者可以自行处理，这里提供的是本地下载的方法。
-如果开启了防盗链，还需要在下载url后面追加签名，如果要自行处理，请参考腾讯云的wiki页，熟悉鉴权签名的算法。
-		
-	//根据url下载
-	//ret = pc.Download(result.download_url, "./download.jpg");
+下载图片直接利用图片的下载url即可。
+如果开启了防盗链，还需要在下载url后面追加签名，请参考腾讯云的wiki页，熟悉鉴权签名的算法。
+
 

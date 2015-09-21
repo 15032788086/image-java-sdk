@@ -26,7 +26,7 @@ How to start
 在创建完对象后，根据实际需求，调用对应的操作方法就可以了。sdk提供的方法包括：签名计算、上传、复制、查询、下载和删除等。
 #### 获得版本信息
 		
-	String version = pc.GetVersion();
+	String version = pc.getVersion();
 
 #### 上传数据
 如果需要上传图片，根据不同的需求，可以选择不同的上传方法
@@ -36,35 +36,39 @@ How to start
 	//////////////////////////////////////////////////
 	//如果希望使用文件上传
 	//1. 最简单的上传接口
-	int ret = Upload(fileName, result);
+	int ret = upload(fileName, result);
 	//2. 可以自定义fileid的上传接口
-	int ret = Upload(fileName, fileid, result);
+	int ret = upload(fileName, fileid, result);
 
 	//////////////////////////////////////////////////
 	//如果希望使用流式上传
 	//1. 最简单的上传接口
-	int ret = Upload(inputStream, result);
+	int ret = upload(inputStream, result);
 	//2. 可以自定义fileid的上传接口
-	int ret = Upload(inputStream, fileid, result);
+	int ret = upload(inputStream, fileid, result);
 
 #### 复制图片
 		
 	UploadResult result = new UploadResult();
-	int ret = pc.Copy(fileid, result);
+	int ret = pc.copy(fileid, result);
 
 #### 查询图片
 		
 	//图片查询
 	PicInfo picInfo = new PicInfo();	
-	int ret = pc.Stat(fileid, picInfo);
+	int ret = pc.stat(fileid, picInfo);
 
 #### 删除图片
 		
-	ret = pc.Delete(fileid);
+	ret = pc.delete(fileid);
 
 #### 下载图片
 下载图片直接利用图片的下载url即可。
 如果开启了防盗链，还需要在下载url后面追加签名，请参考腾讯云的wiki页，熟悉鉴权签名的算法。
+
+Demo
+----------------------------------- 
+请参考src/main/java/Demo.java
 
 版本信息
 ----------------------------------- 

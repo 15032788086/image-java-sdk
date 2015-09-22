@@ -3,6 +3,9 @@ qcloud-java-sdk
 简介
 ----------------------------------- 
 java sdk for picture service of tencentyun.
+maven：
+	GroupId： com.qcloud
+	ArtifactId：qcloud-sdk
 
 How to start
 ----------------------------------- 

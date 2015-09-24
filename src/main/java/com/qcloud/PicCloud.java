@@ -238,6 +238,12 @@ public class PicCloud {
                     result.fileId = jsonObject.getJSONObject("data")
                                     .getString("fileid");
 
+                    if(jsonObject.getJSONObject("data").has("info") &&
+                            jsonObject.getJSONObject("data").getJSONArray("info").length() > 0 ){
+                        result.width = jsonObject.getJSONObject("data").getJSONArray("info").getJSONObject(0).getJSONObject("0").getInt("width");
+                        result.height = jsonObject.getJSONObject("data").getJSONArray("info").getJSONObject(0).getJSONObject("0").getInt("height"); 
+                    } 
+                    
                     if(jsonObject.getJSONObject("data").has("is_fuzzy")){
                         result.analyze.fuzzy = jsonObject.getJSONObject("data").getInt("is_fuzzy");
                     }
@@ -405,6 +411,13 @@ public class PicCloud {
 					"download_url");
 			result.fileId = result.url
 					.substring(result.url.lastIndexOf('/') + 1);
+                        
+                        if(jsonObject.getJSONObject("data").has("info") &&
+                            jsonObject.getJSONObject("data").getJSONArray("info").length() > 0 ){
+                            result.width = jsonObject.getJSONObject("data").getJSONArray("info").getJSONObject(0).getJSONObject("0").getInt("width");
+                            result.height = jsonObject.getJSONObject("data").getJSONArray("info").getJSONObject(0).getJSONObject("0").getInt("height"); 
+                        } 
+                        
 		} catch (JSONException e) {
 			return setError(-1, "json exception, e=" + e.toString());
 		}

@@ -13,14 +13,16 @@ public class UploadResult {
 	public String url; // 资源url
 	public String downloadUrl; // 下载url
 	public String fileId; // 资源的唯一标识
-	public String coverUrl; // 视频资源的封面url，只有转码过的视频才有，默认是黑屏后的第一帧
+        public int width;
+        public int height;
         public PicAnalyze analyze; //图片分析的结果
 
 	public UploadResult() {
 		url = "";
 		downloadUrl = "";
 		fileId = "";
-		coverUrl = "";
+                width = 0;
+                height = 0;
                 analyze = new PicAnalyze();
 	}
 
@@ -28,8 +30,7 @@ public class UploadResult {
 		System.out.println("url = " + url);
 		System.out.println("downloadUrl = " + downloadUrl);
 		System.out.println("fileId = " + fileId);
-		if (coverUrl.length() > 0) {
-			System.out.println("coverUrl = " + coverUrl);
-		}
+                System.out.println("width = " + width);
+                System.out.println("height = " + height);
 	}
 };

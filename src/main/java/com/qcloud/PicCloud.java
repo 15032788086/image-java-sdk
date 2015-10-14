@@ -19,8 +19,9 @@ import java.io.IOException;
  * @author jusisli
  */
 public class PicCloud {
-        protected static String VERSION = "2.1.0";
+        protected static String VERSION = "2.1.2";
 	protected static String QCLOUD_DOMAIN = "image.myqcloud.com";
+        protected static String PROCESS_DOMAIN = "service.image.myqcloud.com";
 
 	protected int mAppId;
 	protected String mSecretId;
@@ -474,5 +475,67 @@ public class PicCloud {
         public String getSignOnce(String fileId) {
             return FileCloudSign.appSignOnceV2(mAppId, mSecretId, mSecretKey, mBucket, fileId);
         }  
+        
+        public int pornDetect(String url, PornDetectInfo info) {
+            String reqUrl = "http://"+PROCESS_DOMAIN + "/detection/pornDetect";
+            String rsp;
+
+            // create sign
+            long expired = System.currentTimeMillis() / 1000 + 3600*24;
+            String sign = PicProcessSign.sign(mAppId, mSecretId, mSecretKey, mBucket, expired, url);
+            if (null == sign) {
+                    return setError(-1, "create app sign failed");
+            }
+            
+            //create body
+            JSONObject reqData = new JSONObject();
+            reqData.put("appid", mAppId);
+            reqData.put("bucket", mBucket);
+            reqData.put("url", url);
+
+            try {
+                    URL realUrl = new URL(reqUrl);
+                    HttpURLConnection connection = (HttpURLConnection) realUrl
+                                    .openConnection();
+                    // set header
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("accept", "*/*");
+                    connection.setRequestProperty("Host", PROCESS_DOMAIN);
+                    connection.setRequestProperty("user-agent", "qcloud-java-sdk");
+                    connection.setRequestProperty("Authorization", sign);
+                    connection.setRequestProperty("Content-Type","application/json");
+
+                    connection.setDoInput(true);
+                    connection.setDoOutput(true);  
+                    OutputStream out = new DataOutputStream(
+                                    connection.getOutputStream());
+                    out.write(reqData.toString().getBytes());
+                    out.flush();
+                    out.close();
+
+                    connection.connect();
+                    rsp = getResponse(connection);
+            } catch (Exception e) {
+                    return setError(-1, "url exception, e=" + e.toString());
+            }
+            try {
+                    JSONObject jsonObject = new JSONObject(rsp);
+                    int code = jsonObject.getInt("code");
+                    String msg = jsonObject.getString("message");
+                    if (0 != code) {
+                            return setError(code, msg);
+                    }
+
+                    info.result = jsonObject.getJSONObject("data").getInt("result");
+                    info.confidence = jsonObject.getJSONObject("data").getDouble("confidence");
+                    info.pornScore = jsonObject.getJSONObject("data").getDouble("porn_score");
+                    info.normalScore = jsonObject.getJSONObject("data").getDouble("normal_score");
+                    info.hotScore = jsonObject.getJSONObject("data").getDouble("hot_score");
+            } catch (JSONException e) {
+                    return setError(-1, "json exception, e=" + e.toString());
+            }
+            return setError(0, "success");
+            
+        }
 
 };

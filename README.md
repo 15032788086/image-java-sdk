@@ -8,6 +8,9 @@ java sdk for picture service of tencentyun.
 	GroupId： com.qcloud
 	ArtifactId：qcloud-sdk
 
+	wiki地址
+	http://www.qcloud.com/wiki/Java-SDK%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3
+
 How to start
 ----------------------------------- 
 ### 1. 在[腾讯云](http://app.qcloud.com) 申请业务的授权
@@ -58,17 +61,26 @@ How to start
 
 #### 查询图片
 		
-	//图片查询
 	PicInfo picInfo = new PicInfo();	
 	int ret = pc.stat(fileid, picInfo);
 
 #### 删除图片
 		
+	//UploadResult是上传的返回结果
+	UploadResult result = new UploadResult();
 	ret = pc.delete(fileid);
 
 #### 下载图片
 下载图片直接利用图片的下载url即可。
 如果开启了防盗链，还需要在下载url后面追加签名，请参考腾讯云的wiki页，熟悉鉴权签名的算法。
+
+#### 黄图识别
+		
+	//PornDetectInfo是黄图识别的返回结果
+	PornDetectInfo info = new PornDetectInfo();	
+	int ret = pc.pornDetect(url, info);	
+	//返回结果的各字段含义，请参考官网wiki文档
+	//http://www.qcloud.com/wiki/%E4%B8%87%E8%B1%A1%E4%BC%98%E5%9B%BE%E6%99%BA%E8%83%BD%E9%89%B4%E9%BB%84%E6%96%87%E6%A1%A3	
 
 Demo
 ----------------------------------- 
@@ -76,6 +88,9 @@ Demo
 
 版本信息
 ----------------------------------- 
+### v2.1.2
+增加对黄图识别api的支持。
+
 ### v2.1.1
 上传返回结果里增加原图的width和height。
 

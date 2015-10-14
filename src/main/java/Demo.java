@@ -12,6 +12,8 @@ public class Demo {
 	public static final String SECRET_ID_V2 = "AKIDNZwDVhbRtdGkMZQfWgl2Gnn1dhXs95C0";
 	public static final String SECRET_KEY_V2 = "ZDdyyRLCLv1TkeYOl5OCMLbyH4sJ40wp";
         public static final String BUCKET = "testa";        //空间名
+        
+        public static final String TEST_URL = "http://b.hiphotos.baidu.com/image/pic/item/8ad4b31c8701a18b1efd50a89a2f07082938fec7.jpg";
 
 	public static void main(String[] args) throws Exception {
             //sign_test();
@@ -19,6 +21,8 @@ public class Demo {
             //apiV1Demo("D:/sss.jpg");
             //v2版本api的demo
             apiV2Demo("D:/test.jpg");
+            //黄图识别服务demo
+            pornDemo(TEST_URL);
 	}
         
         public static void signDemo(){
@@ -62,4 +66,10 @@ public class Demo {
 		// 删除一张图片
 		//ret = pc.delete(result.fileId);
 	}
+        
+        public static void pornDemo(String url){
+            PicCloud pc = new PicCloud(APP_ID_V2, SECRET_ID_V2, SECRET_KEY_V2, BUCKET);
+            PornDetectInfo info = new PornDetectInfo(); 
+            int ret = pc.pornDetect(url, info);
+        }
 }

@@ -1,7 +1,5 @@
 import com.qcloud.*;
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Test {
 	// appid, access id, access key请去http://app.qcloud.com申请使用
@@ -14,13 +12,17 @@ public class Test {
 	public static final String SECRET_ID_V2 = "AKIDNZwDVhbRtdGkMZQfWgl2Gnn1dhXs95C0";
 	public static final String SECRET_KEY_V2 = "ZDdyyRLCLv1TkeYOl5OCMLbyH4sJ40wp";
         public static final String BUCKET = "testa";        //空间名
+        
+        public static final String TEST_URL = "http://b.hiphotos.baidu.com/image/pic/item/8ad4b31c8701a18b1efd50a89a2f07082938fec7.jpg";
 
 	public static void main(String[] args) throws Exception {
             //sign_test();
             //v1版本api的demo
-            picV1Test("D:/sss.jpg");
+            //picV1Test("D:/sss.jpg");
             //v2版本api的demo
-            //picV2_test("D:/test.jpg");
+            //picV2Test("D:/test.jpg");
+            //黄图识别服务
+            pornTest(TEST_URL);
 	}
         
         public static void signTest() {
@@ -108,4 +110,17 @@ public class Test {
 			System.out.println("delete pic error, error=" + pc.getError());
 		} 
 	}
+        
+        public static void pornTest(String url){
+            PicCloud pc = new PicCloud(APP_ID_V2, SECRET_ID_V2, SECRET_KEY_V2, BUCKET);
+            PornDetectInfo info = new PornDetectInfo();
+            
+            int ret = pc.pornDetect(url, info);
+            if (ret == 0) {
+                System.out.println("detect porn pic success");
+		info.print();
+            } else {
+		System.out.println("detect porn pic error, error=" + pc.getError());
+            } 
+        }
 }

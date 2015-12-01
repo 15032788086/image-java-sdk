@@ -4,25 +4,37 @@ import java.io.*;
 public class Test {
 	// appid, access id, access key请去http://app.qcloud.com申请使用
 	// 下面的的demo代码请使用自己的appid�
-	public static final int APP_ID_V1 = 201437;
+//	public static final int APP_ID_V1 = 201437;
+//	public static final String SECRET_ID_V1 = "AKIDblLJilpRRd7k3ioCHe5JGmSsPvf1uHOf";
+//	public static final String SECRET_KEY_V1 = "6YvZEJEkTGmXrtqnuFgjrgwBpauzENFG";
+//        
+//        public static final int APP_ID_V2 = 10000001;
+//	public static final String SECRET_ID_V2 = "AKIDNZwDVhbRtdGkMZQfWgl2Gnn1dhXs95C0";
+//	public static final String SECRET_KEY_V2 = "ZDdyyRLCLv1TkeYOl5OCMLbyH4sJ40wp";
+//        public static final String BUCKET = "testb";        //空间名
+    
+    	public static final int APP_ID_V1 = 201437;
 	public static final String SECRET_ID_V1 = "AKIDblLJilpRRd7k3ioCHe5JGmSsPvf1uHOf";
 	public static final String SECRET_KEY_V1 = "6YvZEJEkTGmXrtqnuFgjrgwBpauzENFG";
         
-        public static final int APP_ID_V2 = 10000001;
-	public static final String SECRET_ID_V2 = "AKIDNZwDVhbRtdGkMZQfWgl2Gnn1dhXs95C0";
-	public static final String SECRET_KEY_V2 = "ZDdyyRLCLv1TkeYOl5OCMLbyH4sJ40wp";
-        public static final String BUCKET = "testa";        //空间名
+        public static final int APP_ID_V2 = 10000956;
+	public static final String SECRET_ID_V2 = "AKID1yakE7O1hxNVELIyrCs7ejEOq1hHcGYN";
+	public static final String SECRET_KEY_V2 = "RErIXg9yXQex5MPV8aY89kBEqYDePOw9";
+        public static final String BUCKET = "dogdog";        //空间名
         
         public static final String TEST_URL = "http://b.hiphotos.baidu.com/image/pic/item/8ad4b31c8701a18b1efd50a89a2f07082938fec7.jpg";
-
+        
 	public static void main(String[] args) throws Exception {
             //sign_test();
             //v1版本api的demo
             //picV1Test("D:/sss.jpg");
             //v2版本api的demo
-            //picV2Test("D:/test.jpg");
+            picV2Test("D:/original.jpg");
+            //分片上传
+            sliceUpload("D:/original.jpg");
             //黄图识别服务
             pornTest(TEST_URL);
+           
 	}
         
         public static void signTest() {
@@ -46,25 +58,22 @@ public class Test {
 	public static void picBase(PicCloud pc, String pic) throws Exception {
 		String url = "";
 		String downloadUrl = "";
-		UploadResult result = new UploadResult();
-		UploadResult result2 = new UploadResult();
-		PicInfo info = new PicInfo();
 
 		// 上传一张图片�
 		System.out.println("======================================================");
-		int ret = pc.upload(pic, result);
-		if (ret == 0) {
+		UploadResult uInfo = pc.upload(pic);
+		if (uInfo != null) {
 			System.out.println("upload pic success");
-			result.print();
+			uInfo.print();
 		} else {
 			System.out.println("upload pic error, error=" + pc.getError());
 		}
 
                 FileInputStream fileStream = new FileInputStream(pic);
-                ret = pc.upload(fileStream, result);
-		if (ret == 0) {
+                uInfo = pc.upload(fileStream);
+		if (uInfo != null) {
 			System.out.println("upload pic2 success");
-			result.print();
+			uInfo.print();
 		} else {
 			System.out.println("upload pic2 error, error=" + pc.getError());
 		}
@@ -73,37 +82,37 @@ public class Test {
                 byte[] data = new byte[fileStream2.available()];
                 fileStream2.read(data);
                 ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-                ret = pc.upload(inputStream, result);
-		if (ret == 0) {
+                uInfo = pc.upload(inputStream);
+		if (uInfo != null) {
 			System.out.println("upload pic3 success");
-			result.print();
+			uInfo.print();
 		} else {
 			System.out.println("upload pic3 error, error=" + pc.getError());
 		}
 
 		// 查询图片的状态��
 		System.out.println("======================================================");
-		ret = pc.stat(result.fileId, info);
-		if (ret == 0) {
+		PicInfo pInfo = pc.stat(uInfo.fileId);
+		if (pInfo != null) {
 			System.out.println("Stat pic success");
-			info.print();
+			pInfo.print();
 		} else {
 			System.out.println("Stat pic error, error=" + pc.getError());
 		}
 
 		// 复制一张图片
 		System.out.println("======================================================");
-		ret = pc.copy(result.fileId, result2);
-		if (ret == 0) {
+		uInfo = pc.copy(uInfo.fileId);
+		if (uInfo != null) {
 			System.out.println("copy pic success");
-			result2.print();
+			uInfo.print();
 		} else {
 			System.out.println("copy pic error, error=" + pc.getError());
 		}     
 
 		// 删除一张图片
 		System.out.println("======================================================");
-		//ret = pc.Delete(result.fileid);
+		int ret = pc.delete(uInfo.fileId);
 		if (ret == 0) {
 			System.out.println("delete pic success");
 		} else {
@@ -111,12 +120,21 @@ public class Test {
 		} 
 	}
         
+        public static void sliceUpload(String url){
+            PicCloud pc = new PicCloud(APP_ID_V2, SECRET_ID_V2, SECRET_KEY_V2, BUCKET);
+            SliceUploadInfo info = pc.simpleUploadSlice(url, 8*1024);
+            if (info != null) {
+                System.out.println("slice upload pic success");
+		info.print();
+            } else {
+		System.out.println("slice upload pic error, error=" + pc.getError());
+            }
+        }
+        
         public static void pornTest(String url){
             PicCloud pc = new PicCloud(APP_ID_V2, SECRET_ID_V2, SECRET_KEY_V2, BUCKET);
-            PornDetectInfo info = new PornDetectInfo();
-            
-            int ret = pc.pornDetect(url, info);
-            if (ret == 0) {
+            PornDetectInfo info = pc.pornDetect(url);
+            if (info != null) {
                 System.out.println("detect porn pic success");
 		info.print();
             } else {

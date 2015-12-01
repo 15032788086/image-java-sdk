@@ -54,6 +54,17 @@ How to start
 	//2. 可以自定义fileid的上传接口
 	int ret = upload(inputStream, fileid, result);
 
+	//////////////////////////////////////////////////
+	//分片上传，适用于大图片
+	//简单模式，提供分片大小，内部自动分片上传
+	SliceUploadInfo info = pc.simpleUploadSlice(url, sliceSize);
+	//高级模式，可以多线程操作
+	//初始化分片操作
+	SliceUploadInfo info = initUploadSlice(fileId, data, fileSize, sliceSize)
+	//上传分片
+	SliceUploadInfo info = UploadSlice(data, sliceUploadInfo)
+
+
 #### 复制图片
 		
 	UploadResult result = new UploadResult();
@@ -88,6 +99,9 @@ Demo
 
 版本信息
 ----------------------------------- 
+### v2.1.3
+支持图片分片上传（大图片使用，不建议多线程）。
+
 ### v2.1.2
 增加对黄图识别api的支持。
 

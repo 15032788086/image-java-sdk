@@ -11,7 +11,7 @@ public class Demo {
         public static final int APP_ID_V2 = 10000001;
 	public static final String SECRET_ID_V2 = "AKIDNZwDVhbRtdGkMZQfWgl2Gnn1dhXs95C0";
 	public static final String SECRET_KEY_V2 = "ZDdyyRLCLv1TkeYOl5OCMLbyH4sJ40wp";
-        public static final String BUCKET = "testa";        //空间名
+        public static final String BUCKET = "testb";        //空间名
         
         public static final String TEST_URL = "http://b.hiphotos.baidu.com/image/pic/item/8ad4b31c8701a18b1efd50a89a2f07082938fec7.jpg";
 
@@ -21,6 +21,8 @@ public class Demo {
             //apiV1Demo("D:/sss.jpg");
             //v2版本api的demo
             apiV2Demo("D:/test.jpg");
+            //分片上传
+            //sliceUpload("D:/sss.jpg");
             //黄图识别服务demo
             pornDemo(TEST_URL);
 	}
@@ -44,32 +46,46 @@ public class Demo {
         }
 
 	public static void picBase(PicCloud pc, String pic) throws Exception {
-		String url = "";
-		String downloadUrl = "";
-		UploadResult result = new UploadResult();
-		UploadResult result2 = new UploadResult();
-		PicInfo info = new PicInfo();
-
 		// 上传一张图片�
                 //1. 直接指定图片文件名的方式
-		int ret = pc.upload(pic, result);
+		UploadResult result = pc.upload(pic);
+                if(result != null){
+                    result.print(); 
+                }
                 //2. 文件流的方式
                 FileInputStream fileStream = new FileInputStream(pic);
-                ret = pc.upload(fileStream, result);
+                result = pc.upload(fileStream);
+                if(result != null){
+                    result.print(); 
+                }
                 //3. 字节流的方式
                 //ByteArrayInputStream inputStream = new ByteArrayInputStream(你自己的参数);
                 //ret = pc.upload(inputStream, result);
 		// 查询图片的状态��
-		ret = pc.stat(result.fileId, info);
+		PicInfo info = pc.stat(result.fileId);
+                if(info != null){
+                    info.print(); 
+                }
 		// 复制一张图片
-		ret = pc.copy(result.fileId, result2);
+		result = pc.copy(result.fileId);
 		// 删除一张图片
-		//ret = pc.delete(result.fileId);
+		int ret = pc.delete(result.fileId);
 	}
+        
+        public static void sliceUpload(String url){
+            PicCloud pc = new PicCloud(APP_ID_V2, SECRET_ID_V2, SECRET_KEY_V2, BUCKET);
+            SliceUploadInfo info = pc.simpleUploadSlice(url, 16*1024);
+            if (info != null) {
+                System.out.println("slice upload pic success");
+		info.print();
+            } else {
+		System.out.println("slice upload pic error, error=" + pc.getError());
+            }
+        }
         
         public static void pornDemo(String url){
             PicCloud pc = new PicCloud(APP_ID_V2, SECRET_ID_V2, SECRET_KEY_V2, BUCKET);
-            PornDetectInfo info = new PornDetectInfo(); 
-            int ret = pc.pornDetect(url, info);
+            PornDetectInfo info = pc.pornDetect(url);
+            info.print();
         }
 }

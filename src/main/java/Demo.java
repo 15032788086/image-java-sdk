@@ -74,7 +74,7 @@ public class Demo {
         
         public static void sliceUpload(String url){
             PicCloud pc = new PicCloud(APP_ID_V2, SECRET_ID_V2, SECRET_KEY_V2, BUCKET);
-            SliceUploadInfo info = pc.simpleUploadSlice(url, 16*1024);
+            SliceUploadInfo info = pc.simpleUploadSlice(url, 128*1024);
             if (info != null) {
                 System.out.println("slice upload pic success");
 		info.print();

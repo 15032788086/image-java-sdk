@@ -23,7 +23,7 @@ import org.apache.commons.codec.digest.DigestUtils;
  * @author jusisli
  */
 public class PicCloud {
-        protected static String VERSION = "2.1.3";
+        protected static String VERSION = "2.1.4";
 	protected static String QCLOUD_DOMAIN = "image.myqcloud.com";
         protected static String PROCESS_DOMAIN = "service.image.myqcloud.com";
 
@@ -218,7 +218,7 @@ public class PicCloud {
                 String rsp = mClient.post(url, header, body, data);
                 rspData = getResponse(rsp);
                 if(null == rspData || false == rspData.has("data")){
-                    setError(-1, "qcloud api response error"); 
+                    setError(-1, "qcloud api response error, rsp="+rsp); 
                     return null;
                 }
                 rspData = rspData.getJSONObject("data");
@@ -255,6 +255,8 @@ public class PicCloud {
         
         /**
          * 分片上传接口族
+         * @param fileName		上传的文件名
+	 * @return			返回结果
          */
         public SliceUploadInfo simpleUploadSlice(String fileName){
              return simpleUploadSlice(fileName, "", 0);
@@ -373,7 +375,7 @@ public class PicCloud {
                 String rsp = mClient.post(url, header, body, null);
                 rspData = getResponse(rsp);
                 if(null == rspData || false == rspData.has("data")){
-                    setError(-1, "qcloud api response error"); 
+                    setError(-1, "qcloud api response error, rsp="+rsp); 
                     return null;
                 }
                 rspData = rspData.getJSONObject("data");
@@ -435,7 +437,7 @@ public class PicCloud {
                 String rsp = mClient.post(info.reqUrl, header, body, sliceData);
                 rspData = getResponse(rsp);
                 if(null == rspData || false == rspData.has("data")){
-                    setError(-1, "qcloud api response error"); 
+                    setError(-1, "qcloud api response error, rsp="+rsp); 
                     return null;
                 }
                 rspData = rspData.getJSONObject("data");
@@ -461,8 +463,10 @@ public class PicCloud {
                     newInfo.reqUrl = info.reqUrl;
                     newInfo.sign = info.sign;
                     newInfo.session = rspData.getString("session");
-                    newInfo.offset = rspData.getInt("offset");
-                    newInfo.sliceSize = rspData.getInt("slice_size");
+                    newInfo.offset = rspData.getInt("offset") + info.sliceSize;
+                    newInfo.sliceSize = info.sliceSize;
+                    newInfo.fileSize = info.fileSize;
+                    //newInfo.sliceSize = rspData.getInt("slice_size");
                 }else{
                     setError(-1, "qcloud api response data error"); 
                     return null;
@@ -497,7 +501,7 @@ public class PicCloud {
                 String rsp = mClient.post(url, header, null, null);
                 JSONObject rspData = getResponse(rsp);
                 if(null == rspData){
-                    return setError(-1, "qcloud api response packet error"); 
+                    return setError(-1, "qcloud api response packet error, rsp="+rsp); 
                 }
             } catch (Exception e) {
                     return setError(-1, "url exception, e=" + e.toString());
@@ -509,7 +513,7 @@ public class PicCloud {
 	/**
 	 * Stat 查询图片信息
 	 * @param fileId	图片fileid
-	 * @return 		
+	 * @return             返回结果		
 	 */
 	public PicInfo stat(String fileId) {                   
             HashMap<String, String> header = new HashMap<String, String>();
@@ -521,7 +525,7 @@ public class PicCloud {
                 String rsp = mClient.get(url, header, null);
                 rspData = getResponse(rsp);
                 if(null == rspData || false == rspData.has("data")){
-                    setError(-1, "qcloud api response error"); 
+                    setError(-1, "qcloud api response error, rsp="+rsp); 
                     return null;
                 }
                 rspData = rspData.getJSONObject("data");
@@ -551,7 +555,7 @@ public class PicCloud {
 	/**
 	 * Copy 复制图片
 	 * @param fileId	 图片的唯一标识
-	 * @return 
+	 * @return			返回结果
 	 */
 	public UploadResult copy(String fileId) {
             // create sign once
@@ -571,7 +575,7 @@ public class PicCloud {
                 String rsp = mClient.post(url, header, null, null);
                 rspData = getResponse(rsp);
                 if(null == rspData || false == rspData.has("data")){
-                    setError(-1, "qcloud api response error"); 
+                    setError(-1, "qcloud api response error, rsp="+rsp); 
                     return null;
                 }
                 rspData = rspData.getJSONObject("data");

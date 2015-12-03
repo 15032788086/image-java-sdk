@@ -29,9 +29,9 @@ public class Test {
             //v1版本api的demo
             //picV1Test("D:/sss.jpg");
             //v2版本api的demo
-            picV2Test("D:/original.jpg");
+            //picV2Test("D:/original.jpg");
             //分片上传
-            sliceUpload("D:/original.jpg");
+            //sliceUpload("D:/testa.jpg");
             //黄图识别服务
             pornTest(TEST_URL);
            

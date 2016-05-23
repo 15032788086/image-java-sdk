@@ -23,7 +23,7 @@ public class PicProcessSign {
     	
         long now = System.currentTimeMillis() / 1000;  
         String plain_text = String.format("a=%d&b=%s&k=%s&t=%d&e=%d&l=%s",
-            appId, bucket, secret_id, now, expired, url);
+            appId, bucket, secret_id, now, expired, java.net.URLEncoder.encode(url));
       
         byte[] bin = HmacUtils.hmacSha1(secret_key, plain_text);
 

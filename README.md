@@ -1,4 +1,6 @@
-qcloud-java-sdk
+# tencentyun/image-java-sdk
+----------------------------------- 
+腾讯云 [万象优图（Cloud Image）](https://www.qcloud.com/product/ci.html) SDK for Java
 ===================================
 简介
 ----------------------------------- 
@@ -86,10 +88,23 @@ How to start
 如果开启了防盗链，还需要在下载url后面追加签名，请参考腾讯云的wiki页，熟悉鉴权签名的算法。
 
 #### 黄图识别
-		
+    //黄图识别(单个Url)
+    String url = "http://b.hiphotos.baidu.com/image/pic/item/8ad4b31c8701a18b1efd50a89a2f07082938fec7.jpg";
+    PornDetectInfoData info = pc.pornDetect(url);
+
+    //黄图识别(Url)
+    String[] pornUrl = {"http://b.hiphotos.baidu.com/image/pic/item/8ad4b31c8701a18b1efd50a89a2f07082938fec7.jpg",
+                        "http://c.hiphotos.baidu.com/image/h%3D200/sign=7b991b465eee3d6d3dc680cb73176d41/96dda144ad3459829813ed730bf431adcaef84b1.jpg"
+    };
+    ArrayList<PornDetectInfo> info = pc.pornDetectUrl(pornUrl);
+    //黄图识别(File)
+    String[] pornFile = {"D:\\porn\\test1.jpg",
+                         "D:\\porn\\test2.jpg",
+                         "..\\..\\..\\..\\..\\porn\\测试.png"
+    };
+    ArrayList<PornDetectInfo> info = pc.pornDetectFile(pornFile);
+	
 	//PornDetectInfo是黄图识别的返回结果
-	PornDetectInfo info = new PornDetectInfo();	
-	int ret = pc.pornDetect(url, info);	
 	//返回结果的各字段含义，请参考官网wiki文档
 	//http://www.qcloud.com/wiki/%E4%B8%87%E8%B1%A1%E4%BC%98%E5%9B%BE%E6%99%BA%E8%83%BD%E9%89%B4%E9%BB%84%E6%96%87%E6%A1%A3	
 
@@ -99,6 +114,9 @@ Demo
 
 版本信息
 ----------------------------------- 
+### v2.1.6
+黄图识别新增多图片Url和多图片内容的支持；修复bug一项。
+
 ### v2.1.5
 修复bug一项。
 

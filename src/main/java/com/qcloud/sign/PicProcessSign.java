@@ -15,15 +15,15 @@ import org.apache.commons.codec.digest.HmacUtils;
 public class PicProcessSign {
     public static String sign(int appId, String secret_id,String secret_key, 
                 String bucket,
-                long expired, String url) {
-        //a=[appid]&b=[bucket]&k=[SecretID]&t=[currenTime]&e=[expiredTime]&l=[url link]
+                long expired) {
+        //a=[appid]&b=[bucket]&k=[SecretID]&t=[currenTime]&e=[expiredTime]
         if (empty(secret_id) || empty(secret_key)){
             return null;
         }
     	
         long now = System.currentTimeMillis() / 1000;  
-        String plain_text = String.format("a=%d&b=%s&k=%s&t=%d&e=%d&l=%s",
-            appId, bucket, secret_id, now, expired, java.net.URLEncoder.encode(url));
+        String plain_text = String.format("a=%d&b=%s&k=%s&t=%d&e=%d",
+            appId, bucket, secret_id, now, expired);
       
         byte[] bin = HmacUtils.hmacSha1(secret_key, plain_text);
 

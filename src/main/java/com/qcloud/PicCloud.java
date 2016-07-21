@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONArray;
 
 import com.qcloud.sign.*;
 import java.io.IOException;
@@ -173,7 +174,14 @@ public class PicCloud {
                 setError(-1, "invalid file name");
                 return null;
             }
-            return upload(fileStream, fileId, flag);
+            UploadResult result = upload(fileStream, fileId, flag);
+            try {
+                fileStream.close();
+            } catch (IOException ex) {
+                setError(-1, "close filestream error");
+                return null;
+            }
+            return result;
 	}
 
         public UploadResult upload(InputStream inputStream) {
@@ -634,14 +642,14 @@ public class PicCloud {
             return FileCloudSign.appSignOnceV2(mAppId, mSecretId, mSecretKey, mBucket, fileId);
         }  
         
-        public String getProcessSign(long expired, String url) {
-            return PicProcessSign.sign(mAppId, mSecretId, mSecretKey, mBucket, expired, url);
-        }  
+        public String getProcessSign(long expired) {
+            return PicProcessSign.sign(mAppId, mSecretId, mSecretKey, mBucket, expired);
+        }
         
-        public PornDetectInfo pornDetect(String url) {
+        public PornDetectInfoData pornDetect(String url) {
             // create sign
             long expired = System.currentTimeMillis() / 1000 + 3600*24;
-            String sign = getProcessSign(expired, url);
+            String sign = getProcessSign(expired);
             if (null == sign) {
                     setError(-1, "create app sign failed");
                     return null;
@@ -663,7 +671,7 @@ public class PicCloud {
                 String rsp = mClient.post(reqUrl, header, null, reqData.toString().getBytes());
                 rspData = getResponse(rsp);
                 if(null == rspData || false == rspData.has("data")){
-                    setError(-1, "qcloud api response error"); 
+                    //setError(-1, "qcloud api response error"); 
                     return null;
                 }
                 rspData = rspData.getJSONObject("data");
@@ -672,16 +680,179 @@ public class PicCloud {
                     return null;
             }
 
-            PornDetectInfo info = new PornDetectInfo();
+            PornDetectInfoData info = new PornDetectInfoData();
             try {
                 info.result = rspData.getInt("result");
                 info.confidence = rspData.getDouble("confidence");
                 info.pornScore = rspData.getDouble("porn_score");
                 info.normalScore = rspData.getDouble("normal_score");
                 info.hotScore = rspData.getDouble("hot_score");
+                info.forbidStatus = rspData.getInt("forbid_status");
             } catch (JSONException e) {
                     setError(-1, "json exception, e=" + e.toString());
                     return null;
+            }
+            setError(0, "success");  
+            return info;
+        }
+        
+        public ArrayList<PornDetectInfo> pornDetectUrl(String[] pornUrl) {
+            // create sign
+            long expired = System.currentTimeMillis() / 1000 + 3600*24;
+            String sign = getProcessSign(expired);
+            if (null == sign) {
+                    setError(-1, "create app sign failed");
+                    return null;
+            }
+            
+            HashMap<String, String> header = new HashMap<String, String>();
+            header.put("Authorization", sign);
+            header.put("Host", PROCESS_DOMAIN);
+            header.put("Content-Type", "application/json");
+            //create body
+            JSONObject reqData = new JSONObject();
+            reqData.put("appid", mAppId);
+            reqData.put("bucket", mBucket);
+            reqData.put("url_list", pornUrl);
+            
+            String reqUrl = "http://"+PROCESS_DOMAIN + "/detection/pornDetect";
+            JSONObject rspData;
+            try {
+                String rsp = mClient.post(reqUrl, header, null, reqData.toString().getBytes());
+                //rspData = getResponse(rsp);
+                if("".equals(rsp)){
+                    setError(-1, "empty rsp");
+                    return null;
+                }
+                rspData = new JSONObject(rsp);
+            } catch (Exception e) {
+                    setError(-1, "url exception, e=" + e.toString());
+                    return null;
+            }
+            if(!rspData.has("result_list")){
+                System.out.println("code = " + rspData.getInt("code"));
+		System.out.println("message = " + rspData.getString("message"));
+		System.out.println("data = " + rspData.getString("data"));
+                return null;
+            }
+            
+            ArrayList<PornDetectInfo> info = new ArrayList<PornDetectInfo>();
+            try {            
+                JSONArray rl;
+                rl = rspData.getJSONArray("result_list");
+                
+                for(int i=0;i<rl.length();i++){
+                    PornDetectInfo tmpinfo = new PornDetectInfo();
+                    JSONObject res=rl.getJSONObject(i);
+                    tmpinfo.code = res.getInt("code");
+                    tmpinfo.message = res.getString("message");
+                    tmpinfo.name = res.getString("url"); 
+                    if(res.has("data")){
+                        JSONObject resData = res.getJSONObject("data");
+                        tmpinfo.data.result = resData.getInt("result");
+                        tmpinfo.data.confidence = resData.getDouble("confidence");
+                        tmpinfo.data.pornScore = resData.getDouble("porn_score");
+                        tmpinfo.data.normalScore = resData.getDouble("normal_score");
+                        tmpinfo.data.hotScore = resData.getDouble("hot_score");
+                        tmpinfo.data.forbidStatus = resData.getInt("forbid_status");
+                    }
+                    info.add(tmpinfo);
+                }
+            } catch (JSONException e) {
+                setError(-2, "json exception, e=" + e.toString());
+                return null;
+            }
+            setError(0, "success");  
+            return info;
+        }
+
+        public ArrayList<PornDetectInfo> pornDetectFile(String[] pornFile) {
+            // create sign
+            long expired = System.currentTimeMillis() / 1000 + 3600*24;
+            String sign = getProcessSign(expired);
+            if (null == sign) {
+                    setError(-1, "create app sign failed");
+                    return null;
+            }
+            
+            HashMap<String, String> header = new HashMap<String, String>();
+            header.put("Authorization", sign);
+            header.put("Host", PROCESS_DOMAIN);
+            HashMap<String, Object> body = new HashMap<String, Object>();
+            body.put("appid", mAppId);
+            body.put("bucket", mBucket);
+            
+            byte[][] data = new byte[pornFile.length][];
+            for(int i=0;i<pornFile.length ;i++){
+                String fileName = pornFile[i];
+                if ("".equals(fileName)) {
+                    setError(-1, "invalid file name");
+                    return null;
+                }
+                FileInputStream fileStream = null;
+                try {
+                    fileStream = new FileInputStream(fileName);
+                } catch (FileNotFoundException ex) {
+                    setError(-1, fileName + " not found");
+                    return null;
+                }
+                try {
+                    data[i] = new byte[fileStream.available()];
+                    fileStream.read(data[i]);
+                    fileStream.close();
+                } catch (Exception ex) {
+                    setError(-1, "io exception, e=" + ex.toString());
+                    return null;
+                }
+            }
+            String reqUrl = "http://"+PROCESS_DOMAIN + "/detection/pornDetect";
+            JSONObject rspData;
+            try {
+                String rsp = mClient.postfiles(reqUrl, header, body, data, pornFile);
+                //rspData = getResponse(rsp);
+                if("".equals(rsp)){
+                    setError(-1, "empty rsp");
+                    return null;
+                }
+                rspData = new JSONObject(rsp);
+            } catch (Exception e) {
+                    setError(-1, "url exception, e=" + e.toString());
+                    return null;
+            }
+            if(!rspData.has("result_list")){
+                System.out.println("code = " + rspData.getInt("code"));
+		System.out.println("message = " + rspData.getString("message"));
+                if(rspData.has("data")){
+                    System.out.println("data = " + rspData.getString("data"));
+                }
+                return null;
+            }
+            
+            ArrayList<PornDetectInfo> info = new ArrayList<PornDetectInfo>();
+            try {            
+                JSONArray rl;
+                rl = rspData.getJSONArray("result_list");
+                
+                for(int i=0;i<rl.length();i++){
+                    PornDetectInfo tmpinfo = new PornDetectInfo();
+                    JSONObject res=rl.getJSONObject(i);
+                    tmpinfo.code = res.getInt("code");
+                    tmpinfo.message = res.getString("message");
+                    tmpinfo.name = res.getString("filename"); 
+                    if(res.has("data")){
+                        JSONObject resData = res.getJSONObject("data");
+                        tmpinfo.data.result = resData.getInt("result");
+                        tmpinfo.data.confidence = resData.getDouble("confidence");
+                        tmpinfo.data.pornScore = resData.getDouble("porn_score");
+                        tmpinfo.data.normalScore = resData.getDouble("normal_score");
+                        tmpinfo.data.hotScore = resData.getDouble("hot_score");
+                        tmpinfo.data.forbidStatus = resData.getInt("forbid_status");
+                    }
+                    info.add(tmpinfo);
+                }
+            } catch (JSONException e) {
+                setError(-2, "json exception, e=" + e.toString());
+                return null;
             }
             setError(0, "success");  
             return info;

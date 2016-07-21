@@ -9,6 +9,7 @@ import java.util.*;
 import java.net.*;
 import org.apache.http.*;
 import org.apache.http.client.*;
+//import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.mime.content.*;
 import org.apache.http.entity.mime.*;
@@ -61,6 +62,44 @@ public class CloudClient {
             }
         }
         
+//        HttpHost proxy = new HttpHost("127.0.0.1",8888);
+//        mClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,proxy);
+    
+	HttpResponse httpResponse = mClient.execute(httpPost);
+        int code = httpResponse.getStatusLine().getStatusCode();
+	return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");  
+    }
+    
+    public String postfiles(String url, Map<String, String> header, Map<String, Object> body, byte[][] data, String[] pornFile) throws UnsupportedEncodingException, IOException{
+	HttpPost httpPost = new  HttpPost(url);
+	httpPost.setHeader("accept", "*/*");
+	httpPost.setHeader("user-agent", "qcloud-java-sdk");
+	if(header != null){
+	    for(String key : header.keySet()){
+	        httpPost.setHeader(key, header.get(key));
+	    }
+	}
+
+        if(false == header.containsKey("Content-Type") || header.get("Content-Type").equals("multipart/form-data")){
+            MultipartEntity multipartEntity = new MultipartEntity();
+            if(body != null){
+                for(String key : body.keySet()){
+                    multipartEntity.addPart(key, new StringBody(body.get(key).toString()));
+                }
+            }
+            
+            if(data != null){
+                for(int i = 0; i < data.length; i++){
+                    ContentBody contentBody =  new ByteArrayBody(data[i], pornFile[i]);
+                    multipartEntity.addPart("image["+Integer.toString(i)+"]", contentBody);
+                }
+            }
+            httpPost.setEntity(multipartEntity);
+        }
+        
+//        HttpHost proxy = new HttpHost("127.0.0.1",8888);
+//        mClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,proxy);
+    
 	HttpResponse httpResponse = mClient.execute(httpPost);
         int code = httpResponse.getStatusLine().getStatusCode();
 	return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");  

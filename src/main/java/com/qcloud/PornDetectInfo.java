@@ -10,25 +10,24 @@ package com.qcloud;
  * @author jusisli
  */
 public class PornDetectInfo {
-        public int result;
-        public double confidence;
-        public double pornScore;
-        public double normalScore;
-        public double hotScore;
+        public int code;
+        public String message;
+        public String name;
+        public PornDetectInfoData data;
     
     	public PornDetectInfo() {
-		result = 0;
-		confidence = 0;
-		pornScore = 0;
-		normalScore = 0;
-		hotScore = 0;
+		code = 0;
+		message = null;
+		name = null;
+		data = new PornDetectInfoData();
 	}
 
 	public void print() {
-		System.out.println("result = " + result);
-		System.out.println("confidence = " + confidence);
-		System.out.println("pornScore = " + pornScore);
-		System.out.println("normalScore = " + normalScore);
-		System.out.println("hotScore = " + hotScore);
+		System.out.println("code = " + code);
+		System.out.println("message = " + message);
+		System.out.println("name = " + name);
+                System.out.println("data = {");
+		data.print();
+                System.out.println("}");
 	}
 }

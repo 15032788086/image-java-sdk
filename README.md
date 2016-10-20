@@ -15,7 +15,7 @@ java sdk for picture service of tencentyun.
 
 How to start
 ----------------------------------- 
-### 1. 在[腾讯云](http://app.qcloud.com) 申请业务的授权
+### 1. 在腾讯云申请业务的授权
 授权包括：
 		
 	APP_ID 

@@ -611,28 +611,6 @@ public class PicCloud {
             setError(0, "success");
             return info;
 	}
-
-	/**
-	 * Download 下载图片
-	 * @param url           图片的唯一标识
-	 * @param fileName	 下载图片的保存路径
-	 * @return 错误码，0为成功
-	 */
-	public int download(String url, String fileName) {
-            JSONObject rspData = null;
-            try {
-                String rsp = mClient.get(url, null, null);
-                File file = new File(fileName);
-                DataOutputStream ops = new DataOutputStream(new FileOutputStream(
-                                file));
-                ops.writeBytes(rsp);
-                ops.close();  
-            } catch (Exception e) {
-                    return setError(-1, "url exception, e=" + e.toString());
-            }
-            
-            return setError(0, "success");
-	}
         
         public String getSign(long expired) {
             return FileCloudSign.appSignV2(mAppId, mSecretId, mSecretKey, mBucket, expired);
